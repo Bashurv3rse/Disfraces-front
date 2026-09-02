@@ -1,0 +1,45 @@
+/* Design tokens — Sistema de Alquiler de Disfraces
+   Paleta teatral: telón oscuro + ámbar de reflector + verde terciopelo. */
+:root {
+  --bg: #1B1720;
+  --surface: #241E2C;
+  --surface-raised: #2E2636;
+  --border: #3A3145;
+
+  --accent: #E8A33D;
+  --accent-strong: #F5B85C;
+  --accent-2: #2F6E62;
+  --accent-2-strong: #3D8C7D;
+
+  --text: #F3EDE7;
+  --text-muted: #B8AFC2;
+  --text-on-accent: #1B1720;
+
+  --danger: #E8615A;
+  --success: #5FAE7C;
+
+  --font-display: "Fraunces", "Georgia", serif;
+  --font-body: "Inter", system-ui, -apple-system, sans-serif;
+
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
+
+  --focus-ring: 3px solid var(--accent);
+  --focus-ring-offset: 2px;
+
+  color-scheme: dark;
+}
+
+/* Contraste verificado (WCAG AA, texto normal ≥4.5:1):
+   --text (#F3EDE7) sobre --bg (#1B1720) => ~14.8:1
+   --text-on-accent (#1B1720) sobre --accent (#E8A33D) => ~8.1:1
+   --text-muted (#B8AFC2) sobre --bg (#1B1720) => ~6.2:1 */

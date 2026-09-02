@@ -1,0 +1,54 @@
+.catalogo {
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  gap: var(--space-6);
+}
+
+.catalogo__filtros {
+  position: sticky;
+  top: var(--space-5);
+  align-self: start;
+}
+
+.catalogo__grid {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: var(--space-4);
+}
+
+.catalogo__item {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.catalogo__meta {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  margin: 0;
+}
+
+.catalogo__precio {
+  color: var(--accent);
+  font-weight: 700;
+  margin: var(--space-2) 0 0;
+}
+
+.catalogo__stock {
+  font-size: 0.8rem;
+  color: var(--accent-2-strong);
+  margin: 0;
+}
+
+/* Responsive: filtros pasan arriba en pantallas angostas */
+@media (max-width: 720px) {
+  .catalogo {
+    grid-template-columns: 1fr;
+  }
+  .catalogo__filtros {
+    position: static;
+  }
+}
