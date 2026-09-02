@@ -8,6 +8,7 @@ import { MainLayout } from "./layouts/MainLayout";
 const Login = lazy(() => import("./pages/auth/Login"));
 const Registro = lazy(() => import("./pages/auth/Registro"));
 const Catalogo = lazy(() => import("./pages/catalogo/Catalogo"));
+const Conjuntos = lazy(() => import("./pages/conjuntos/Conjuntos"));
 
 function CargandoPagina() {
   return <p role="status" style={{ padding: "var(--space-6)" }}>Cargando…</p>;
@@ -24,6 +25,7 @@ export default function App() {
               <Route path="/login" element={<Login />} />
               <Route path="/registro" element={<Registro />} />
               <Route path="/catalogo" element={<Catalogo />} />
+              <Route path="/conjuntos" element={<Conjuntos />} />
               {/* Rutas de administración (conjuntos, proveedores) se agregan aquí en el Sprint 3 */}
             </Route>
           </Routes>

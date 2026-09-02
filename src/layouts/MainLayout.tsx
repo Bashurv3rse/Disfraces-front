@@ -21,6 +21,7 @@ export function MainLayout() {
 
         <nav aria-label="Navegación principal" className="layout__nav">
           <Link to="/catalogo">Catálogo</Link>
+          <Link to="/conjuntos">Conjuntos</Link>
           {usuario?.rol === "ADMINISTRADOR" && <Link to="/admin/piezas">Administrar piezas</Link>}
         </nav>
 
