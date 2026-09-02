@@ -62,12 +62,27 @@
 }
 
 .alquiler-card__piezas {
+  list-style: none;
   margin: 0 0 var(--space-4);
-  padding-left: var(--space-4);
+  padding: 0;
   font-size: 0.85rem;
   color: var(--text-muted);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
 }
-.alquiler-card__talla { color: var(--text-muted); }
+.alquiler-card__piezas li {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+.alquiler-card__precio-unit {
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+.alquiler-card__talla {
+  color: var(--text-muted);
+}
 
 .alquiler-card__footer {
   display: flex;

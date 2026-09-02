@@ -83,3 +83,9 @@
   gap: var(--space-4);
   align-items: center;
 }
+
+.carrito-drawer__aviso {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  margin: 0 0 var(--space-4);
+}

@@ -7,6 +7,7 @@ export function MainLayout() {
   const { usuario, cerrarSesion } = useAuth();
   const { items, abrirCarrito } = useCarrito();
   const navigate = useNavigate();
+  const esAdmin = usuario?.rol === "ADMINISTRADOR";
 
   function handleLogout() {
     cerrarSesion();
@@ -21,16 +22,29 @@ export function MainLayout() {
         <Link to="/" className="layout__brand">DisfracesPro</Link>
 
         <nav aria-label="Navegación principal" className="layout__nav">
-          <Link to="/catalogo">Catálogo</Link>
-          <Link to="/conjuntos">Conjuntos</Link>
-          {usuario && <Link to="/conjuntos/nuevo">Armar conjunto</Link>}
-          {usuario && <Link to="/mis-alquileres">Mis alquileres</Link>}
-          {usuario?.rol === "ADMINISTRADOR" && <Link to="/admin/piezas">Administrar piezas</Link>}
+          {esAdmin ? (
+            <>
+              <Link to="/conjuntos/nuevo">Crear conjunto</Link>
+              {/* Dashboard, Devoluciones, Reportes, Proveedores y Stock se agregan en Sprint 4-5 */}
+            </>
+          ) : (
+            <>
+              <Link to="/catalogo">Catálogo</Link>
+              <Link to="/conjuntos">Conjuntos</Link>
+              {usuario && <Link to="/conjuntos/nuevo">Armar conjunto</Link>}
+              {usuario && <Link to="/mis-alquileres">Mis alquileres</Link>}
+            </>
+          )}
         </nav>
 
         <div className="layout__session">
-          {usuario && (
-            <button type="button" onClick={abrirCarrito} className="btn btn--primary" aria-label={`Abrir carrito, ${items.length} artículos`}>
+          {usuario && !esAdmin && (
+            <button
+              type="button"
+              onClick={abrirCarrito}
+              className="btn btn--primary"
+              aria-label={`Abrir carrito, ${items.length} artículos`}
+            >
               🛒 Carrito {items.length > 0 && `(${items.length})`}
             </button>
           )}

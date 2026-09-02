@@ -1,5 +1,9 @@
 import { useEffect, useState, useCallback } from "react";
+import { Link } from "react-router-dom";
 import { api } from "../../lib/api";
+import { useAuth } from "../../lib/AuthContext";
+import { useCarrito } from "../../lib/CarritoContext";
+import { iconoPorTipo, colorPorSemilla } from "../../lib/iconos";
 import "./catalogo.css";
 
 interface Pieza {
@@ -20,6 +24,8 @@ export default function Catalogo() {
   const [cargando, setCargando] = useState(true);
   const [filtroTipo, setFiltroTipo] = useState("");
   const [filtroTemporada, setFiltroTemporada] = useState("");
+  const { usuario } = useAuth();
+  const { agregarItem } = useCarrito();
 
   const cargarPiezas = useCallback(async () => {
     setCargando(true);
@@ -32,11 +38,26 @@ export default function Catalogo() {
     setCargando(false);
   }, [filtroTipo, filtroTemporada]);
 
-  // WPO: debounce simple para no golpear la API en cada tecla del filtro de texto
   useEffect(() => {
     const timeout = setTimeout(cargarPiezas, 300);
     return () => clearTimeout(timeout);
   }, [cargarPiezas]);
+
+  function handleAgregar(p: Pieza) {
+    agregarItem({
+      nombreConjunto: p.nombre,
+      piezas: [
+        {
+          id: p.id,
+          nombre: p.nombre,
+          tipo: p.tipo,
+          tallaEEUU: p.tallaEEUU,
+          color: p.color,
+          precioAlquiler: Number(p.precioAlquiler),
+        },
+      ],
+    });
+  }
 
   return (
     <div className="catalogo">
@@ -74,11 +95,31 @@ export default function Catalogo() {
           <ul className="catalogo__grid">
             {piezas.map((p) => (
               <li key={p.id} className="card catalogo__item">
+                <div
+                  className="catalogo__imagen"
+                  style={{ background: colorPorSemilla(p.tipo) }}
+                  aria-hidden="true"
+                >
+                  <span className="catalogo__icono">{iconoPorTipo(p.tipo)}</span>
+                </div>
                 <h3 style={{ fontSize: "1rem" }}>{p.nombre}</h3>
                 <p className="catalogo__meta">{p.tipo.replace("_", " / ")} · Talla {p.tallaEEUU} · {p.color}</p>
                 <p className="catalogo__meta">Temporada: {p.temporadaOriginal}</p>
-                <p className="catalogo__precio">S/ {p.precioAlquiler} / alquiler</p>
+                <p className="catalogo__precio">S/ {p.precioAlquiler} / día</p>
                 <p className="catalogo__stock">{p.stock > 0 ? `${p.stock} disponibles` : "Sin stock"}</p>
+
+                {usuario ? (
+                  <button
+                    type="button"
+                    className="btn btn--primary"
+                    disabled={p.stock === 0}
+                    onClick={() => handleAgregar(p)}
+                  >
+                    Agregar al carrito
+                  </button>
+                ) : (
+                  <Link to="/login" className="btn btn--ghost">Inicia sesión para alquilar</Link>
+                )}
               </li>
             ))}
           </ul>

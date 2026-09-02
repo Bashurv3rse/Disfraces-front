@@ -1,29 +1,30 @@
 import { createContext, useContext, useState, useCallback } from "react";
 import type { ReactNode } from "react";
-import type { ItemCarrito } from "./CarritoContext";
+import type { PiezaCarrito } from "./CarritoContext";
 
 export interface Alquiler {
   id: string;
   nombreConjunto: string;
-  piezas: ItemCarrito["piezas"];
+  piezas: PiezaCarrito[];
   fechaInicio: string;
   fechaFin: string;
   evento: string;
   estado: "ACTIVO" | "FINALIZADO";
   montoTotal: number;
+  clienteNombre: string;
+  clienteEmail: string;
 }
 
 interface AlquileresContextValue {
   alquileres: Alquiler[];
   confirmarAlquiler: (datos: Omit<Alquiler, "id" | "estado">) => void;
+  devolverAlquiler: (id: string) => void;
 }
 
 const AlquileresContext = createContext<AlquileresContextValue | null>(null);
 
 const CLAVE_STORAGE = "disfraces-mock-alquileres";
 
-// Mock persistido en localStorage: no es el back-end real (eso llega en el Sprint 7),
-// pero permite que la demo sobreviva a un refresh de página.
 export function AlquileresProvider({ children }: { children: ReactNode }) {
   const [alquileres, setAlquileres] = useState<Alquiler[]>(() => {
     const guardado = localStorage.getItem(CLAVE_STORAGE);
@@ -39,8 +40,18 @@ export function AlquileresProvider({ children }: { children: ReactNode }) {
     });
   }, []);
 
+  // Simula la devolución eliminando el registro (mock) — la lógica real de
+  // devoluciones con inspección de piezas llega en el Sprint 5/7.
+  const devolverAlquiler = useCallback((id: string) => {
+    setAlquileres((prev) => {
+      const actualizados = prev.filter((a) => a.id !== id);
+      localStorage.setItem(CLAVE_STORAGE, JSON.stringify(actualizados));
+      return actualizados;
+    });
+  }, []);
+
   return (
-    <AlquileresContext.Provider value={{ alquileres, confirmarAlquiler }}>
+    <AlquileresContext.Provider value={{ alquileres, confirmarAlquiler, devolverAlquiler }}>
       {children}
     </AlquileresContext.Provider>
   );

@@ -3,12 +3,18 @@ import { useAlquileres } from "../../lib/AlquileresContext";
 import "./mis-alquileres.css";
 
 export default function MisAlquileres() {
-  const { alquileres } = useAlquileres();
+  const { alquileres, devolverAlquiler } = useAlquileres();
   const [pestana, setPestana] = useState<"ACTIVO" | "FINALIZADO">("ACTIVO");
 
   const activos = alquileres.filter((a) => a.estado === "ACTIVO");
   const historial = alquileres.filter((a) => a.estado === "FINALIZADO");
   const lista = pestana === "ACTIVO" ? activos : historial;
+
+  function handleDevolver(id: string, nombre: string) {
+    if (confirm(`¿Confirmas la devolución de "${nombre}"? Esto simula el proceso — se elimina del listado.`)) {
+      devolverAlquiler(id);
+    }
+  }
 
   return (
     <div>
@@ -64,7 +70,8 @@ export default function MisAlquileres() {
               <ul className="alquiler-card__piezas">
                 {a.piezas.map((p) => (
                   <li key={p.id}>
-                    {p.nombre} <span className="alquiler-card__talla">T:{p.tallaEEUU}</span>
+                    <span>{p.nombre} <span className="alquiler-card__talla">T:{p.tallaEEUU}</span></span>
+                    <span className="alquiler-card__precio-unit">S/{p.precioAlquiler}/d</span>
                   </li>
                 ))}
               </ul>
@@ -72,7 +79,9 @@ export default function MisAlquileres() {
               <div className="alquiler-card__footer">
                 <span className="alquiler-card__total">S/ {a.montoTotal.toFixed(2)}/día</span>
                 {pestana === "ACTIVO" && (
-                  <button type="button" className="btn btn--ghost">Devolver</button>
+                  <button type="button" className="btn btn--ghost" onClick={() => handleDevolver(a.id, a.evento || a.nombreConjunto)}>
+                    Devolver
+                  </button>
                 )}
               </div>
             </li>

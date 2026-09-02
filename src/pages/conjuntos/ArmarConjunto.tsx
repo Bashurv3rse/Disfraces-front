@@ -3,6 +3,7 @@ import type { FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
 import { api } from "../../lib/api";
 import { useCarrito } from "../../lib/CarritoContext";
+import { useAuth } from "../../lib/AuthContext";
 import "./armar-conjunto.css";
 
 interface Pieza {
@@ -20,8 +21,12 @@ export default function ArmarConjunto() {
   const [piezasDisponibles, setPiezasDisponibles] = useState<Pieza[]>([]);
   const [seleccionadas, setSeleccionadas] = useState<Set<string>>(new Set());
   const [nombre, setNombre] = useState("");
+  const [temporadaEvento, setTemporadaEvento] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [guardando, setGuardando] = useState(false);
   const { agregarItem } = useCarrito();
+  const { usuario } = useAuth();
+  const esAdmin = usuario?.rol === "ADMINISTRADOR";
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -36,7 +41,7 @@ export default function ArmarConjunto() {
     });
   }
 
-  function handleSubmit(e: FormEvent) {
+  async function handleSubmit(e: FormEvent) {
     e.preventDefault();
     setError(null);
 
@@ -45,8 +50,25 @@ export default function ArmarConjunto() {
       return;
     }
 
-    const piezasElegidas = piezasDisponibles.filter((p) => seleccionadas.has(p.id));
+    if (esAdmin) {
+      setGuardando(true);
+      try {
+        await api.post("/conjuntos", {
+          nombre,
+          tipo: "PREDETERMINADO",
+          temporadaEvento,
+          piezaIds: Array.from(seleccionadas),
+        });
+        navigate("/conjuntos");
+      } catch (err: any) {
+        setError(err.response?.data?.mensaje || "No se pudo crear el conjunto");
+      } finally {
+        setGuardando(false);
+      }
+      return;
+    }
 
+    const piezasElegidas = piezasDisponibles.filter((p) => seleccionadas.has(p.id));
     agregarItem({
       nombreConjunto: nombre || "Conjunto personalizado",
       piezas: piezasElegidas.map((p) => ({
@@ -58,7 +80,6 @@ export default function ArmarConjunto() {
         precioAlquiler: p.precioAlquiler,
       })),
     });
-
     navigate("/catalogo");
   }
 
@@ -69,9 +90,13 @@ export default function ArmarConjunto() {
 
   return (
     <div>
-      <h1 style={{ fontSize: "1.4rem", marginBottom: "var(--space-2)" }}>Armar conjunto personalizado</h1>
+      <h1 style={{ fontSize: "1.4rem", marginBottom: "var(--space-2)" }}>
+        {esAdmin ? "Crear conjunto predeterminado" : "Armar conjunto personalizado"}
+      </h1>
       <p style={{ color: "var(--text-muted)", marginBottom: "var(--space-5)" }}>
-        Combina piezas de distintas temporadas para crear tu propio conjunto.
+        {esAdmin
+          ? "Este conjunto se agregará al catálogo oficial de temporada."
+          : "Combina piezas de distintas temporadas para crear tu propio conjunto."}
       </p>
 
       {error && (
@@ -92,6 +117,19 @@ export default function ArmarConjunto() {
               onChange={(e) => setNombre(e.target.value)}
             />
           </div>
+          {esAdmin && (
+            <div className="field">
+              <label htmlFor="evento-conjunto">Temporada / evento</label>
+              <input
+                id="evento-conjunto"
+                type="text"
+                placeholder="ej. halloween"
+                required
+                value={temporadaEvento}
+                onChange={(e) => setTemporadaEvento(e.target.value)}
+              />
+            </div>
+          )}
         </div>
 
         <fieldset className="armar__fieldset">
@@ -126,8 +164,8 @@ export default function ArmarConjunto() {
           ))}
         </fieldset>
 
-        <button type="submit" className="btn btn--primary">
-          Agregar conjunto al carrito
+        <button type="submit" className="btn btn--primary" disabled={guardando}>
+          {esAdmin ? (guardando ? "Creando…" : "Crear conjunto") : "Agregar conjunto al carrito"}
         </button>
       </form>
     </div>

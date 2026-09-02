@@ -2,11 +2,13 @@ import { useState } from "react";
 import type { FormEvent } from "react";
 import { useCarrito } from "../lib/CarritoContext";
 import { useAlquileres } from "../lib/AlquileresContext";
+import { useAuth } from "../lib/AuthContext";
 import "./carrito-drawer.css";
 
 export function CarritoDrawer() {
   const { items, quitarItem, vaciarCarrito, totalPorDia, abierto, cerrarCarrito } = useCarrito();
   const { confirmarAlquiler } = useAlquileres();
+  const { usuario } = useAuth();
   const [fechaInicio, setFechaInicio] = useState("");
   const [fechaFin, setFechaFin] = useState("");
   const [evento, setEvento] = useState("");
@@ -16,16 +18,21 @@ export function CarritoDrawer() {
 
   function handleConfirmar(e: FormEvent) {
     e.preventDefault();
-    items.forEach((item) => {
-      confirmarAlquiler({
-        nombreConjunto: item.nombreConjunto,
-        piezas: item.piezas,
-        fechaInicio,
-        fechaFin,
-        evento,
-        montoTotal: item.piezas.reduce((s, p) => s + Number(p.precioAlquiler), 0),
-      });
+
+    const piezasCombinadas = items.flatMap((item) => item.piezas);
+    const nombreCombinado = items.map((item) => item.nombreConjunto).join(" + ");
+
+    confirmarAlquiler({
+      nombreConjunto: nombreCombinado,
+      piezas: piezasCombinadas,
+      fechaInicio,
+      fechaFin,
+      evento,
+      montoTotal: totalPorDia,
+      clienteNombre: usuario?.nombre || "Desconocido",
+      clienteEmail: usuario?.email || "—",
     });
+
     vaciarCarrito();
     setConfirmado(true);
   }
@@ -88,6 +95,10 @@ export function CarritoDrawer() {
               ))}
             </ul>
 
+            <p className="carrito-drawer__aviso">
+              Todo lo de arriba se guardará como un solo alquiler, con las mismas fechas y evento.
+            </p>
+
             <div className="field">
               <label htmlFor="fecha-inicio">Fecha inicio</label>
               <input
@@ -127,4 +138,4 @@ export function CarritoDrawer() {
       </aside>
     </div>
   );
-}
+} 
