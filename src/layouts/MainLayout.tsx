@@ -22,6 +22,7 @@ export function MainLayout() {
         <nav aria-label="Navegación principal" className="layout__nav">
           <Link to="/catalogo">Catálogo</Link>
           <Link to="/conjuntos">Conjuntos</Link>
+          {usuario && <Link to="/conjuntos/nuevo">Armar conjunto</Link>}
           {usuario?.rol === "ADMINISTRADOR" && <Link to="/admin/piezas">Administrar piezas</Link>}
         </nav>
 
@@ -42,10 +43,6 @@ export function MainLayout() {
       <main id="contenido-principal" className="layout__main">
         <Outlet />
       </main>
-
-      <footer className="layout__footer">
-        <p>Proyecto académico — UTP · Sistema de Alquiler de Disfraces</p>
-      </footer>
     </div>
   );
 }
