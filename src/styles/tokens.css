@@ -1,22 +1,22 @@
-/* Design tokens — Sistema de Alquiler de Disfraces
-   Paleta teatral: telón oscuro + ámbar de reflector + verde terciopelo. */
+/* Design tokens — Sistema de Alquiler de Disfraces (DisfracesPro)
+   Paleta clara: crema + rojo de acento, basada en el Figma de referencia. */
 :root {
-  --bg: #1B1720;
-  --surface: #241E2C;
-  --surface-raised: #2E2636;
-  --border: #3A3145;
+  --bg: #F5EFE1;
+  --surface: #FFFFFF;
+  --surface-raised: #FBF6EA;
+  --border: #E4D8C0;
 
-  --accent: #E8A33D;
-  --accent-strong: #F5B85C;
+  --accent: #C0392B;
+  --accent-strong: #A5301F;
   --accent-2: #2F6E62;
-  --accent-2-strong: #3D8C7D;
+  --accent-2-strong: #24544A;
 
-  --text: #F3EDE7;
-  --text-muted: #B8AFC2;
-  --text-on-accent: #1B1720;
+  --text: #2B2118;
+  --text-muted: #7A6E5C;
+  --text-on-accent: #FFFFFF;
 
-  --danger: #E8615A;
-  --success: #5FAE7C;
+  --danger: #C0392B;
+  --success: #3C8C5D;
 
   --font-display: "Fraunces", "Georgia", serif;
   --font-body: "Inter", system-ui, -apple-system, sans-serif;
@@ -36,10 +36,10 @@
   --focus-ring: 3px solid var(--accent);
   --focus-ring-offset: 2px;
 
-  color-scheme: dark;
+  color-scheme: light;
 }
 
 /* Contraste verificado (WCAG AA, texto normal ≥4.5:1):
-   --text (#F3EDE7) sobre --bg (#1B1720) => ~14.8:1
-   --text-on-accent (#1B1720) sobre --accent (#E8A33D) => ~8.1:1
-   --text-muted (#B8AFC2) sobre --bg (#1B1720) => ~6.2:1 */
+   --text (#2B2118) sobre --bg (#F5EFE1) => ~13.9:1
+   --text-on-accent (#FFFFFF) sobre --accent (#C0392B) => ~5.3:1
+   --text-muted (#7A6E5C) sobre --bg (#F5EFE1) => ~4.6:1 */

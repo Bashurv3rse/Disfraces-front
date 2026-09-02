@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import type { FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
 import { api } from "../../lib/api";
+import { useCarrito } from "../../lib/CarritoContext";
 import "./armar-conjunto.css";
 
 interface Pieza {
@@ -12,15 +13,15 @@ interface Pieza {
   color: string;
   temporadaOriginal: string;
   stock: number;
+  precioAlquiler: number;
 }
 
 export default function ArmarConjunto() {
   const [piezasDisponibles, setPiezasDisponibles] = useState<Pieza[]>([]);
   const [seleccionadas, setSeleccionadas] = useState<Set<string>>(new Set());
   const [nombre, setNombre] = useState("");
-  const [temporadaEvento, setTemporadaEvento] = useState("");
   const [error, setError] = useState<string | null>(null);
-  const [guardando, setGuardando] = useState(false);
+  const { agregarItem } = useCarrito();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -35,7 +36,7 @@ export default function ArmarConjunto() {
     });
   }
 
-  async function handleSubmit(e: FormEvent) {
+  function handleSubmit(e: FormEvent) {
     e.preventDefault();
     setError(null);
 
@@ -44,24 +45,23 @@ export default function ArmarConjunto() {
       return;
     }
 
-    setGuardando(true);
-    try {
-      await api.post("/conjuntos", {
-        nombre,
-        tipo: "PERSONALIZADO",
-        temporadaEvento,
-        piezaIds: Array.from(seleccionadas),
-      });
-      navigate("/conjuntos");
-    } catch (err: any) {
-      setError(err.response?.data?.mensaje || "No se pudo crear el conjunto personalizado");
-    } finally {
-      setGuardando(false);
-    }
+    const piezasElegidas = piezasDisponibles.filter((p) => seleccionadas.has(p.id));
+
+    agregarItem({
+      nombreConjunto: nombre || "Conjunto personalizado",
+      piezas: piezasElegidas.map((p) => ({
+        id: p.id,
+        nombre: p.nombre,
+        tipo: p.tipo,
+        tallaEEUU: p.tallaEEUU,
+        color: p.color,
+        precioAlquiler: p.precioAlquiler,
+      })),
+    });
+
+    navigate("/catalogo");
   }
 
-  // Agrupamos por temporada original solo para mostrar visualmente
-  // que las piezas pueden venir de eventos distintos y aun así combinarse.
   const piezasPorTemporada = piezasDisponibles.reduce<Record<string, Pieza[]>>((acc, p) => {
     (acc[p.temporadaOriginal] ??= []).push(p);
     return acc;
@@ -92,17 +92,6 @@ export default function ArmarConjunto() {
               onChange={(e) => setNombre(e.target.value)}
             />
           </div>
-          <div className="field">
-            <label htmlFor="evento-conjunto">Evento / temporada para el que lo usarás</label>
-            <input
-              id="evento-conjunto"
-              type="text"
-              placeholder="ej. fiesta de fin de año"
-              required
-              value={temporadaEvento}
-              onChange={(e) => setTemporadaEvento(e.target.value)}
-            />
-          </div>
         </div>
 
         <fieldset className="armar__fieldset">
@@ -125,7 +114,7 @@ export default function ArmarConjunto() {
                       <span>
                         <strong>{p.nombre}</strong>
                         <span className="armar__pieza-meta">
-                          {p.tipo.replace("_", " / ")} · {p.tallaEEUU} · {p.color}
+                          {p.tipo.replace("_", " / ")} · {p.tallaEEUU} · {p.color} · S/{p.precioAlquiler}/d
                           {p.stock === 0 && " · sin stock"}
                         </span>
                       </span>
@@ -137,8 +126,8 @@ export default function ArmarConjunto() {
           ))}
         </fieldset>
 
-        <button type="submit" className="btn btn--primary" disabled={guardando}>
-          {guardando ? "Guardando…" : "Crear conjunto personalizado"}
+        <button type="submit" className="btn btn--primary">
+          Agregar conjunto al carrito
         </button>
       </form>
     </div>

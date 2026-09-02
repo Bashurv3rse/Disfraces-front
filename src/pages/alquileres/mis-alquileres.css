@@ -1,0 +1,82 @@
+.tabs {
+  display: flex;
+  gap: var(--space-2);
+  margin-bottom: var(--space-5);
+}
+.tabs__btn {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  padding: var(--space-2) var(--space-4);
+  border-radius: var(--radius-sm);
+  font-weight: 600;
+  cursor: pointer;
+}
+.tabs__btn--activo {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--text-on-accent);
+}
+
+.alquileres-lista {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: var(--space-4);
+}
+
+.alquiler-card__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: var(--space-2);
+}
+
+.estado-badge {
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 2px var(--space-2);
+  border-radius: 999px;
+  background: var(--border);
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+.estado-badge--activo {
+  background: rgba(60, 140, 93, 0.15);
+  color: var(--success);
+}
+
+.alquiler-card__fechas {
+  display: flex;
+  gap: var(--space-5);
+  margin: var(--space-3) 0;
+  font-size: 0.85rem;
+}
+.alquiler-card__label {
+  display: block;
+  color: var(--text-muted);
+  font-size: 0.75rem;
+  text-transform: uppercase;
+}
+
+.alquiler-card__piezas {
+  margin: 0 0 var(--space-4);
+  padding-left: var(--space-4);
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+.alquiler-card__talla { color: var(--text-muted); }
+
+.alquiler-card__footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-top: 1px solid var(--border);
+  padding-top: var(--space-3);
+}
+.alquiler-card__total {
+  font-weight: 700;
+  color: var(--accent);
+}
