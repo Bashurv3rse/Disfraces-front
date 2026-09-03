@@ -1,7 +1,12 @@
 import { Outlet, Link, useNavigate } from "react-router-dom";
+import { Suspense } from "react";
 import { useAuth } from "../lib/AuthContext";
 import { useCarrito } from "../lib/CarritoContext";
 import "./main-layout.css";
+
+function CargandoContenido() {
+  return <p role="status" style={{ padding: "var(--space-6)" }}>Cargando…</p>;
+}
 
 export function MainLayout() {
   const { usuario, cerrarSesion } = useAuth();
@@ -26,6 +31,9 @@ export function MainLayout() {
             <>
               <Link to="/admin/dashboard">Dashboard</Link>
               <Link to="/admin/devoluciones">Devoluciones</Link>
+              <Link to="/admin/reportes">Reportes</Link>
+              <Link to="/admin/proveedores">Proveedores</Link>
+              <Link to="/admin/stock">Stock</Link>
               <Link to="/conjuntos/nuevo">Crear conjunto</Link>
             </>
           ) : (
@@ -63,7 +71,9 @@ export function MainLayout() {
       </header>
 
       <main id="contenido-principal" className="layout__main">
-        <Outlet />
+        <Suspense fallback={<CargandoContenido />}>
+          <Outlet />
+        </Suspense>
       </main>
     </div>
   );

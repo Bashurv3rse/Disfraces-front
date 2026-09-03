@@ -20,7 +20,7 @@ export default function Login() {
     try {
       const { data } = await api.post("/auth/login", { email, password });
       guardarSesion(data.usuario, data.token);
-      navigate("/catalogo");
+      navigate(data.usuario.rol === "ADMINISTRADOR" ? "/admin/dashboard" : "/catalogo");
     } catch (err: any) {
       setError(err.response?.data?.mensaje || "No se pudo iniciar sesión");
     } finally {

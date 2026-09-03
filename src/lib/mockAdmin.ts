@@ -99,3 +99,37 @@ export const DEVOLUCIONES: Devolucion[] = [
     comentario: "Las botas tienen el tacón un poco desgastado.",
   },
 ];
+
+export const COMBINACIONES_TOP = [
+  { nombre: "Pantalones + Trajes", veces: 1, ingresos: 142 },
+  { nombre: "Abrigos + Accesorios + Sombreros + Tacones", veces: 1, ingresos: 158 },
+  { nombre: "Trajes + Zapatos", veces: 1, ingresos: 194 },
+  { nombre: "Accesorios + Tacones + Zapatos", veces: 1, ingresos: 112 },
+  { nombre: "Camisas/Polos + Pantalones + Sombreros", veces: 1, ingresos: 147 },
+  { nombre: "Abrigos + Accesorios", veces: 1, ingresos: 104 },
+];
+
+export const PRENDAS_MAS_SOLICITADAS = [
+  { nombre: "Varita Mágica", veces: 2 },
+  { nombre: "Traje de Esmoquin", veces: 1 },
+  { nombre: "Pantalón de Vestir", veces: 1 },
+  { nombre: "Abrigo de Invierno", veces: 1 },
+  { nombre: "Tacones Dorados", veces: 1 },
+  { nombre: "Sombrero de Copa", veces: 1 },
+  { nombre: "Traje de Reno", veces: 1 },
+  { nombre: "Botas de Combate", veces: 1 },
+];
+
+export const POR_TEMPORADA_REPORTE = [
+  { temporada: "Todas", cantidad: 10 },
+  { temporada: "Otoño", cantidad: 3 },
+  { temporada: "Primavera", cantidad: 2 },
+  { temporada: "Invierno", cantidad: 2 },
+];
+
+export const RENDIMIENTO_PROVEEDOR = [
+  { nombre: "Vestuario Teatral Lima", modelos: 5, pais: "Perú" },
+  { nombre: "Disfraces Mágicos Madrid", modelos: 6, pais: "España" },
+  { nombre: "Costume World Buenos Aires", modelos: 4, pais: "Argentina" },
+  { nombre: "Karnaval Bogotá", modelos: 3, pais: "Colombia" },
+];
