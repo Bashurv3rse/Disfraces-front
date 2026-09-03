@@ -24,8 +24,9 @@ export function MainLayout() {
         <nav aria-label="Navegación principal" className="layout__nav">
           {esAdmin ? (
             <>
+              <Link to="/admin/dashboard">Dashboard</Link>
+              <Link to="/admin/devoluciones">Devoluciones</Link>
               <Link to="/conjuntos/nuevo">Crear conjunto</Link>
-              {/* Dashboard, Devoluciones, Reportes, Proveedores y Stock se agregan en Sprint 4-5 */}
             </>
           ) : (
             <>

@@ -1,0 +1,75 @@
+.dev-lista {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: var(--space-4);
+}
+
+.dev-card__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-3);
+}
+.dev-card__codigo {
+  font-family: monospace;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+}
+
+.estado-pill {
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 2px var(--space-3);
+  border-radius: 999px;
+  text-transform: capitalize;
+}
+.estado-pill--pendiente {
+  background: rgba(232, 163, 61, 0.2);
+  color: #A5730F;
+}
+.estado-pill--aprobada {
+  background: rgba(60, 140, 93, 0.15);
+  color: var(--success);
+}
+.estado-pill--rechazada {
+  background: rgba(192, 57, 43, 0.12);
+  color: var(--danger);
+}
+
+.dev-card__meta {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-3);
+  margin-bottom: var(--space-3);
+  font-size: 0.85rem;
+}
+.dev-card__label {
+  display: block;
+  color: var(--text-muted);
+  font-size: 0.75rem;
+  text-transform: uppercase;
+}
+
+.dev-card__prendas {
+  margin: 0 0 var(--space-3);
+  padding-left: var(--space-4);
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.dev-card__comentario {
+  font-style: italic;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  border-left: 3px solid var(--border);
+  padding-left: var(--space-3);
+  margin: 0 0 var(--space-4);
+}
+
+.dev-card__acciones {
+  display: flex;
+  gap: var(--space-2);
+}
