@@ -2,7 +2,6 @@ import { lazy } from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider, useAuth } from "./lib/AuthContext";
 import { CarritoProvider } from "./lib/CarritoContext";
-import { AlquileresProvider } from "./lib/AlquileresContext";
 import { MainLayout } from "./layouts/MainLayout";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import { CarritoDrawer } from "./components/CarritoDrawer";
@@ -28,42 +27,40 @@ export default function App() {
   return (
     <AuthProvider>
       <CarritoProvider>
-        <AlquileresProvider>
-          <BrowserRouter>
-            <Routes>
-              <Route element={<MainLayout />}>
-                <Route path="/" element={<Inicio />} />
-                <Route path="/login" element={<Login />} />
-                <Route path="/registro" element={<Registro />} />
-                <Route path="/catalogo" element={<Catalogo />} />
-                <Route path="/conjuntos" element={<Conjuntos />} />
-                <Route path="/conjuntos/nuevo" element={<ProtectedRoute><ArmarConjunto /></ProtectedRoute>} />
-                <Route path="/mis-alquileres" element={<ProtectedRoute><MisAlquileres /></ProtectedRoute>} />
-                <Route
-                  path="/admin/dashboard"
-                  element={<ProtectedRoute rolesPermitidos={["ADMINISTRADOR"]}><Dashboard /></ProtectedRoute>}
-                />
-                <Route
-                  path="/admin/devoluciones"
-                  element={<ProtectedRoute rolesPermitidos={["ADMINISTRADOR"]}><Devoluciones /></ProtectedRoute>}
-                />
-                <Route
-                  path="/admin/reportes"
-                  element={<ProtectedRoute rolesPermitidos={["ADMINISTRADOR"]}><Reportes /></ProtectedRoute>}
-                />
-                <Route
-                  path="/admin/proveedores"
-                  element={<ProtectedRoute rolesPermitidos={["ADMINISTRADOR"]}><Proveedores /></ProtectedRoute>}
-                />
-                <Route
-                  path="/admin/stock"
-                  element={<ProtectedRoute rolesPermitidos={["ADMINISTRADOR"]}><Stock /></ProtectedRoute>}
-                />
-              </Route>
-            </Routes>
-            <CarritoDrawer />
-          </BrowserRouter>
-        </AlquileresProvider>
+        <BrowserRouter>
+          <Routes>
+            <Route element={<MainLayout />}>
+              <Route path="/" element={<Inicio />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/registro" element={<Registro />} />
+              <Route path="/catalogo" element={<Catalogo />} />
+              <Route path="/conjuntos" element={<Conjuntos />} />
+              <Route path="/conjuntos/nuevo" element={<ProtectedRoute><ArmarConjunto /></ProtectedRoute>} />
+              <Route path="/mis-alquileres" element={<ProtectedRoute><MisAlquileres /></ProtectedRoute>} />
+              <Route
+                path="/admin/dashboard"
+                element={<ProtectedRoute rolesPermitidos={["ADMINISTRADOR"]}><Dashboard /></ProtectedRoute>}
+              />
+              <Route
+                path="/admin/devoluciones"
+                element={<ProtectedRoute rolesPermitidos={["ADMINISTRADOR"]}><Devoluciones /></ProtectedRoute>}
+              />
+              <Route
+                path="/admin/reportes"
+                element={<ProtectedRoute rolesPermitidos={["ADMINISTRADOR"]}><Reportes /></ProtectedRoute>}
+              />
+              <Route
+                path="/admin/proveedores"
+                element={<ProtectedRoute rolesPermitidos={["ADMINISTRADOR"]}><Proveedores /></ProtectedRoute>}
+              />
+              <Route
+                path="/admin/stock"
+                element={<ProtectedRoute rolesPermitidos={["ADMINISTRADOR"]}><Stock /></ProtectedRoute>}
+              />
+            </Route>
+          </Routes>
+          <CarritoDrawer />
+        </BrowserRouter>
       </CarritoProvider>
     </AuthProvider>
   );

@@ -145,3 +145,16 @@
     grid-template-columns: 1fr;
   }
 }
+
+.dash-card__badge {
+  font-size: 0.65rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  background: var(--surface-raised);
+  border: 1px solid var(--border);
+  padding: 1px var(--space-2);
+  border-radius: 999px;
+  margin-left: var(--space-2);
+  text-transform: uppercase;
+  vertical-align: middle;
+}

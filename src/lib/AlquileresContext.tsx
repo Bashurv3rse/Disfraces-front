@@ -1,3 +1,4 @@
+/*
 import { createContext, useContext, useState, useCallback } from "react";
 import type { ReactNode } from "react";
 import type { PiezaCarrito } from "./CarritoContext";
@@ -62,3 +63,4 @@ export function useAlquileres() {
   if (!ctx) throw new Error("useAlquileres debe usarse dentro de AlquileresProvider");
   return ctx;
 }
+'*/
