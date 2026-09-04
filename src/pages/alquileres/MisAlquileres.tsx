@@ -34,8 +34,8 @@ export default function MisAlquileres() {
   }, [cargar]);
 
   async function handleDevolver(id: string, nombre: string) {
-    if (!confirm(`¿Confirmas la devolución de "${nombre}"? Esto simula el proceso.`)) return;
-    await api.delete(`/alquileres/${id}`);
+    if (!confirm(`¿Confirmas la devolución de "${nombre}"? Quedará pendiente de revisión por el administrador.`)) return;
+    await api.post("/devoluciones", { alquilerId: id, fechaDevolucion: new Date().toISOString() });
     cargar();
   }
 
