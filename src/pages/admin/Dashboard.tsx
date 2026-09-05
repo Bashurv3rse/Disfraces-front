@@ -8,6 +8,7 @@ const COLORES_DONA = ["#C0392B", "#2F6E62", "#A5301F", "#7A6E5C", "#24544A", "#D
 interface Resumen {
   totalAlquileres: number;
   alquileresActivos: number;
+  alquileresProximos: number;
   ingresosMes: number;
   devolucionesPendientes: number;
   ultimosAlquileres: { cliente: string; monto: number; estado: string }[];
@@ -39,7 +40,9 @@ export default function Dashboard() {
         <div className="card dash-metrica">
           <span className="dash-metrica__label">Alquileres activos</span>
           <strong className="dash-metrica__valor">{resumen?.alquileresActivos ?? "…"}</strong>
-          <span className="dash-metrica__nota">en curso ahora</span>
+          <span className="dash-metrica__nota">
+            en curso ahora{resumen && resumen.alquileresProximos > 0 ? ` · ${resumen.alquileresProximos} próximos` : ""}
+          </span>
         </div>
         <div className="card dash-metrica">
           <span className="dash-metrica__label">Ingresos del mes</span>

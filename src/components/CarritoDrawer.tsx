@@ -102,6 +102,24 @@ export function CarritoDrawer() {
               Todo lo de arriba se guardará como un solo alquiler, con las mismas fechas y evento.
             </p>
 
+            <div className="carrito-drawer__resumen">
+              <div className="carrito-drawer__resumen-linea">
+                <span>Subtotal alquiler</span>
+                <span>S/ {totalPorDia.toFixed(2)}/día</span>
+              </div>
+              <div className="carrito-drawer__resumen-linea">
+                <span>Garantía (20%, reembolsable)</span>
+                <span>S/ {(totalPorDia * 0.2).toFixed(2)}</span>
+              </div>
+              <div className="carrito-drawer__resumen-linea carrito-drawer__resumen-linea--total">
+                <span>Total a pagar</span>
+                <span>S/ {(totalPorDia * 1.2).toFixed(2)}</span>
+              </div>
+              <p className="carrito-drawer__resumen-nota">
+                La garantía se devuelve completa si el conjunto vuelve en buen estado.
+              </p>
+            </div>
+
             <div className="field">
               <label htmlFor="fecha-inicio">Fecha inicio</label>
               <input
@@ -134,7 +152,7 @@ export function CarritoDrawer() {
             </div>
 
             <button type="submit" className="btn btn--primary" style={{ width: "100%" }} disabled={guardando}>
-              {guardando ? "Confirmando…" : `Confirmar alquiler · S/ ${totalPorDia.toFixed(2)}/día`}
+              {guardando ? "Confirmando…" : `Confirmar alquiler · S/ ${(totalPorDia * 1.2).toFixed(2)}`}
             </button>
           </form>
         )}

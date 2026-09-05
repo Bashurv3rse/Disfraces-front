@@ -1,21 +1,31 @@
+import { useEffect, useState } from "react";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
-import {
-  COMBINACIONES_TOP,
-  PRENDAS_MAS_SOLICITADAS,
-  POR_TEMPORADA_REPORTE,
-  RENDIMIENTO_PROVEEDOR,
-} from "../../lib/mockAdmin";
+import { api } from "../../lib/api";
+import { COMBINACIONES_TOP, PRENDAS_MAS_SOLICITADAS, POR_TEMPORADA_REPORTE } from "../../lib/mockAdmin";
 import "./reportes.css";
 
+interface Proveedor {
+  id: string;
+  nombre: string;
+  contacto: string;
+  piezas: { pieza: { id: string } }[];
+}
+
 export default function Reportes() {
+  const [proveedores, setProveedores] = useState<Proveedor[]>([]);
+
+  useEffect(() => {
+    api.get("/proveedores").then(({ data }) => setProveedores(data));
+  }, []);
+
   return (
     <div>
       <h1 style={{ fontSize: "1.4rem", marginBottom: "var(--space-1)" }}>Reportes & análisis</h1>
       <p style={{ color: "var(--text-muted)", marginBottom: "var(--space-5)" }}>
-        Combinaciones más usadas, prendas top y rendimiento por proveedor — datos de ejemplo.
+        Combinaciones y prendas top son datos de ejemplo; el rendimiento por proveedor ya es real.
       </p>
 
-      <h2 className="reportes__seccion">Combinaciones más alquiladas</h2>
+      <h2 className="reportes__seccion">Combinaciones más alquiladas <span className="dash-card__badge">ejemplo</span></h2>
       <div className="reportes__combos">
         {COMBINACIONES_TOP.map((c, i) => (
           <div key={c.nombre} className="card reportes__combo">
@@ -29,7 +39,7 @@ export default function Reportes() {
         ))}
       </div>
 
-      <h2 className="reportes__seccion">Prendas más solicitadas</h2>
+      <h2 className="reportes__seccion">Prendas más solicitadas <span className="dash-card__badge">ejemplo</span></h2>
       <div className="card" style={{ marginBottom: "var(--space-5)" }}>
         <ResponsiveContainer width="100%" height={260}>
           <BarChart data={PRENDAS_MAS_SOLICITADAS} layout="vertical" margin={{ left: 40 }}>
@@ -44,7 +54,9 @@ export default function Reportes() {
 
       <div className="dash-grid-2">
         <div className="card">
-          <h2 className="reportes__seccion" style={{ marginTop: 0 }}>Por temporada</h2>
+          <h2 className="reportes__seccion" style={{ marginTop: 0 }}>
+            Por temporada <span className="dash-card__badge">ejemplo</span>
+          </h2>
           <ResponsiveContainer width="100%" height={220}>
             <BarChart data={POR_TEMPORADA_REPORTE}>
               <CartesianGrid stroke="var(--border)" strokeDasharray="3 3" />
@@ -58,24 +70,28 @@ export default function Reportes() {
 
         <div className="card">
           <h2 className="reportes__seccion" style={{ marginTop: 0 }}>Rendimiento por proveedor</h2>
-          <table className="reportes__tabla">
-            <thead>
-              <tr>
-                <th>Proveedor</th>
-                <th>Prendas</th>
-                <th>País</th>
-              </tr>
-            </thead>
-            <tbody>
-              {RENDIMIENTO_PROVEEDOR.map((p) => (
-                <tr key={p.nombre}>
-                  <td>{p.nombre}</td>
-                  <td>{p.modelos}</td>
-                  <td>{p.pais}</td>
+          {proveedores.length === 0 ? (
+            <p style={{ color: "var(--text-muted)" }}>Aún no hay proveedores registrados.</p>
+          ) : (
+            <table className="reportes__tabla">
+              <thead>
+                <tr>
+                  <th>Proveedor</th>
+                  <th>Prendas</th>
+                  <th>Contacto</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {proveedores.map((p) => (
+                  <tr key={p.id}>
+                    <td>{p.nombre}</td>
+                    <td>{p.piezas.length}</td>
+                    <td>{p.contacto}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
         </div>
       </div>
     </div>
