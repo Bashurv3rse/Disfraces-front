@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { api } from "../../lib/api";
 import { useCarrito } from "../../lib/CarritoContext";
 import { useAuth } from "../../lib/AuthContext";
+import { tallasPorDefecto, coloresPorDefecto } from "../../lib/opciones";
 import "./armar-conjunto.css";
 
 interface Pieza {
@@ -15,11 +16,15 @@ interface Pieza {
   temporadaOriginal: string;
   stock: number;
   precioAlquiler: number;
+  tallasDisponibles: string[];
+  coloresDisponibles: string[];
 }
 
 export default function ArmarConjunto() {
   const [piezasDisponibles, setPiezasDisponibles] = useState<Pieza[]>([]);
   const [seleccionadas, setSeleccionadas] = useState<Set<string>>(new Set());
+  const [tallaPorPieza, setTallaPorPieza] = useState<Record<string, string>>({});
+  const [colorPorPieza, setColorPorPieza] = useState<Record<string, string>>({});
   const [nombre, setNombre] = useState("");
   const [temporadaEvento, setTemporadaEvento] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -32,6 +37,13 @@ export default function ArmarConjunto() {
   useEffect(() => {
     api.get("/catalogo").then(({ data }) => setPiezasDisponibles(data));
   }, []);
+
+  function opcionesTalla(p: Pieza) {
+    return p.tallasDisponibles?.length ? p.tallasDisponibles : tallasPorDefecto(p.tipo);
+  }
+  function opcionesColor(p: Pieza) {
+    return p.coloresDisponibles?.length ? p.coloresDisponibles : coloresPorDefecto();
+  }
 
   function toggleSeleccion(id: string) {
     setSeleccionadas((prev) => {
@@ -75,8 +87,8 @@ export default function ArmarConjunto() {
         id: p.id,
         nombre: p.nombre,
         tipo: p.tipo,
-        tallaEEUU: p.tallaEEUU,
-        color: p.color,
+        tallaEEUU: tallaPorPieza[p.id] || opcionesTalla(p)[0],
+        color: colorPorPieza[p.id] || opcionesColor(p)[0],
         precioAlquiler: p.precioAlquiler,
       })),
     });
@@ -142,21 +154,46 @@ export default function ArmarConjunto() {
                 {piezas.map((p) => {
                   const seleccionada = seleccionadas.has(p.id);
                   return (
-                    <label key={p.id} className={`armar__pieza ${seleccionada ? "armar__pieza--activa" : ""}`}>
-                      <input
-                        type="checkbox"
-                        checked={seleccionada}
-                        onChange={() => toggleSeleccion(p.id)}
-                        disabled={p.stock === 0}
-                      />
-                      <span>
-                        <strong>{p.nombre}</strong>
-                        <span className="armar__pieza-meta">
-                          {p.tipo.replace("_", " / ")} · {p.tallaEEUU} · {p.color} · S/{p.precioAlquiler}/d
-                          {p.stock === 0 && " · sin stock"}
+                    <div key={p.id} className={`armar__pieza ${seleccionada ? "armar__pieza--activa" : ""}`}>
+                      <label className="armar__pieza-check">
+                        <input
+                          type="checkbox"
+                          checked={seleccionada}
+                          onChange={() => toggleSeleccion(p.id)}
+                          disabled={p.stock === 0}
+                        />
+                        <span>
+                          <strong>{p.nombre}</strong>
+                          <span className="armar__pieza-meta">
+                            {p.tipo.replace("_", " / ")} · S/{p.precioAlquiler}/d
+                            {p.stock === 0 && " · sin stock"}
+                          </span>
                         </span>
-                      </span>
-                    </label>
+                      </label>
+
+                      {seleccionada && !esAdmin && (
+                        <div className="armar__pieza-variantes">
+                          <select
+                            aria-label={`Talla de ${p.nombre}`}
+                            value={tallaPorPieza[p.id] || opcionesTalla(p)[0]}
+                            onChange={(e) => setTallaPorPieza((prev) => ({ ...prev, [p.id]: e.target.value }))}
+                          >
+                            {opcionesTalla(p).map((t) => (
+                              <option key={t} value={t}>Talla {t}</option>
+                            ))}
+                          </select>
+                          <select
+                            aria-label={`Color de ${p.nombre}`}
+                            value={colorPorPieza[p.id] || opcionesColor(p)[0]}
+                            onChange={(e) => setColorPorPieza((prev) => ({ ...prev, [p.id]: e.target.value }))}
+                          >
+                            {opcionesColor(p).map((c) => (
+                              <option key={c} value={c}>{c}</option>
+                            ))}
+                          </select>
+                        </div>
+                      )}
+                    </div>
                   );
                 })}
               </div>

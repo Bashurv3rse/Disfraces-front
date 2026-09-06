@@ -5,6 +5,7 @@ import { CarritoProvider } from "./lib/CarritoContext";
 import { MainLayout } from "./layouts/MainLayout";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import { CarritoDrawer } from "./components/CarritoDrawer";
+import { ErrorBoundary } from "./components/ErrorBoundary";
 
 const Login = lazy(() => import("./pages/auth/Login"));
 const Registro = lazy(() => import("./pages/auth/Registro"));
@@ -25,43 +26,45 @@ function Inicio() {
 
 export default function App() {
   return (
-    <AuthProvider>
-      <CarritoProvider>
-        <BrowserRouter>
-          <Routes>
-            <Route element={<MainLayout />}>
-              <Route path="/" element={<Inicio />} />
-              <Route path="/login" element={<Login />} />
-              <Route path="/registro" element={<Registro />} />
-              <Route path="/catalogo" element={<Catalogo />} />
-              <Route path="/conjuntos" element={<Conjuntos />} />
-              <Route path="/conjuntos/nuevo" element={<ProtectedRoute><ArmarConjunto /></ProtectedRoute>} />
-              <Route path="/mis-alquileres" element={<ProtectedRoute><MisAlquileres /></ProtectedRoute>} />
-              <Route
-                path="/admin/dashboard"
-                element={<ProtectedRoute rolesPermitidos={["ADMINISTRADOR"]}><Dashboard /></ProtectedRoute>}
-              />
-              <Route
-                path="/admin/devoluciones"
-                element={<ProtectedRoute rolesPermitidos={["ADMINISTRADOR"]}><Devoluciones /></ProtectedRoute>}
-              />
-              <Route
-                path="/admin/reportes"
-                element={<ProtectedRoute rolesPermitidos={["ADMINISTRADOR"]}><Reportes /></ProtectedRoute>}
-              />
-              <Route
-                path="/admin/proveedores"
-                element={<ProtectedRoute rolesPermitidos={["ADMINISTRADOR"]}><Proveedores /></ProtectedRoute>}
-              />
-              <Route
-                path="/admin/stock"
-                element={<ProtectedRoute rolesPermitidos={["ADMINISTRADOR"]}><Stock /></ProtectedRoute>}
-              />
-            </Route>
-          </Routes>
-          <CarritoDrawer />
-        </BrowserRouter>
-      </CarritoProvider>
-    </AuthProvider>
+    <ErrorBoundary>
+      <AuthProvider>
+        <CarritoProvider>
+          <BrowserRouter>
+            <Routes>
+              <Route element={<MainLayout />}>
+                <Route path="/" element={<Inicio />} />
+                <Route path="/login" element={<Login />} />
+                <Route path="/registro" element={<Registro />} />
+                <Route path="/catalogo" element={<Catalogo />} />
+                <Route path="/conjuntos" element={<Conjuntos />} />
+                <Route path="/conjuntos/nuevo" element={<ProtectedRoute><ArmarConjunto /></ProtectedRoute>} />
+                <Route path="/mis-alquileres" element={<ProtectedRoute><MisAlquileres /></ProtectedRoute>} />
+                <Route
+                  path="/admin/dashboard"
+                  element={<ProtectedRoute rolesPermitidos={["ADMINISTRADOR"]}><Dashboard /></ProtectedRoute>}
+                />
+                <Route
+                  path="/admin/devoluciones"
+                  element={<ProtectedRoute rolesPermitidos={["ADMINISTRADOR"]}><Devoluciones /></ProtectedRoute>}
+                />
+                <Route
+                  path="/admin/reportes"
+                  element={<ProtectedRoute rolesPermitidos={["ADMINISTRADOR"]}><Reportes /></ProtectedRoute>}
+                />
+                <Route
+                  path="/admin/proveedores"
+                  element={<ProtectedRoute rolesPermitidos={["ADMINISTRADOR"]}><Proveedores /></ProtectedRoute>}
+                />
+                <Route
+                  path="/admin/stock"
+                  element={<ProtectedRoute rolesPermitidos={["ADMINISTRADOR"]}><Stock /></ProtectedRoute>}
+                />
+              </Route>
+            </Routes>
+            <CarritoDrawer />
+          </BrowserRouter>
+        </CarritoProvider>
+      </AuthProvider>
+    </ErrorBoundary>
   );
 }

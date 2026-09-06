@@ -67,3 +67,32 @@
     grid-template-columns: 1fr;
   }
 }
+.armar__pieza-check {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  cursor: pointer;
+}
+.armar__pieza-check input {
+  margin-top: 3px;
+}
+.armar__pieza:has(input:disabled) {
+  opacity: 0.5;
+}
+
+.armar__pieza-variantes {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-2);
+  margin-top: var(--space-2);
+  padding-top: var(--space-2);
+  border-top: 1px dashed var(--border);
+}
+.armar__pieza-variantes select {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: var(--space-1) var(--space-2);
+  font-size: 0.8rem;
+  color: var(--text);
+}

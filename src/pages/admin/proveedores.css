@@ -21,7 +21,7 @@
   margin: 0;
   padding: 0;
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
   gap: var(--space-4);
 }
 
@@ -92,13 +92,17 @@
 
 .proveedores__asociar {
   display: flex;
+  flex-direction: column;
   gap: var(--space-2);
 }
 .proveedores__asociar select {
-  flex: 1;
+  width: 100%;
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
   padding: var(--space-2);
   color: var(--text);
+}
+.proveedores__asociar .btn {
+  width: 100%;
 }

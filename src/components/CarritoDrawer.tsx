@@ -20,10 +20,12 @@ export function CarritoDrawer() {
     setError(null);
     setGuardando(true);
 
-    const piezaIds = items.flatMap((item) => item.piezas.map((p) => p.id));
+    const piezas = items.flatMap((item) =>
+      item.piezas.map((p) => ({ piezaId: p.id, tallaElegida: p.tallaEEUU, colorElegido: p.color }))
+    );
 
     try {
-      await api.post("/alquileres", { fechaInicio, fechaFin, evento, piezaIds });
+      await api.post("/alquileres", { fechaInicio, fechaFin, evento, piezas });
       vaciarCarrito();
       setConfirmado(true);
     } catch (err: any) {
