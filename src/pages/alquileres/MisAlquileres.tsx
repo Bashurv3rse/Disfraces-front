@@ -14,6 +14,7 @@ interface Alquiler {
   evento: string | null;
   estado: "PENDIENTE" | "ACTIVO" | "FINALIZADO" | "CANCELADO";
   montoTotal: string;
+  montoGarantia: string;
   piezas: PiezaAlquiler[];
 }
 
@@ -21,6 +22,8 @@ export default function MisAlquileres() {
   const [alquileres, setAlquileres] = useState<Alquiler[]>([]);
   const [cargando, setCargando] = useState(true);
   const [pestana, setPestana] = useState<"ACTIVO" | "FINALIZADO">("ACTIVO");
+  const [enviandoId, setEnviandoId] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   const cargar = useCallback(async () => {
     setCargando(true);
@@ -33,10 +36,21 @@ export default function MisAlquileres() {
     cargar();
   }, [cargar]);
 
-  async function handleDevolver(id: string, nombre: string) {
-    if (!confirm(`¿Confirmas la devolución de "${nombre}"? Quedará pendiente de revisión por el administrador.`)) return;
-    await api.post("/devoluciones", { alquilerId: id, fechaDevolucion: new Date().toISOString() });
-    cargar();
+  async function handleDevolver(id: string, estadoProducto: "BUENO" | "MALO") {
+    setEnviandoId(id);
+    setError(null);
+    try {
+      await api.post("/devoluciones", {
+        alquilerId: id,
+        fechaDevolucion: new Date().toISOString(),
+        estadoProducto,
+      });
+      cargar();
+    } catch (err: any) {
+      setError(err.response?.data?.mensaje || "No se pudo registrar la devolución. Intenta de nuevo.");
+    } finally {
+      setEnviandoId(null);
+    }
   }
 
   const activos = alquileres.filter((a) => a.estado === "ACTIVO" || a.estado === "PENDIENTE");
@@ -46,6 +60,12 @@ export default function MisAlquileres() {
   return (
     <div>
       <h1 style={{ fontSize: "1.4rem", marginBottom: "var(--space-5)" }}>Mis alquileres</h1>
+
+      {error && (
+        <div className="alert alert--danger" role="alert" style={{ marginBottom: "var(--space-4)" }}>
+          {error}
+        </div>
+      )}
 
       <div className="tabs" role="tablist" aria-label="Filtrar alquileres">
         <button
@@ -105,12 +125,34 @@ export default function MisAlquileres() {
                 ))}
               </ul>
 
+              <p className="alquiler-card__garantia">
+                Garantía (20%): S/ {Number(a.montoGarantia).toFixed(2)} — se devuelve si el producto vuelve en buen estado
+              </p>
+
               <div className="alquiler-card__footer">
                 <span className="alquiler-card__total">S/ {Number(a.montoTotal).toFixed(2)}/día</span>
                 {pestana === "ACTIVO" && (
-                  <button type="button" className="btn btn--ghost" onClick={() => handleDevolver(a.id, a.evento || "este alquiler")}>
-                    Devolver
-                  </button>
+                  <div className="alquiler-card__devolver">
+                    <span className="alquiler-card__devolver-label">¿En qué estado lo devuelves?</span>
+                    <div className="alquiler-card__devolver-botones">
+                      <button
+                        type="button"
+                        className="btn btn--primary"
+                        disabled={enviandoId === a.id}
+                        onClick={() => handleDevolver(a.id, "BUENO")}
+                      >
+                        Buen estado
+                      </button>
+                      <button
+                        type="button"
+                        className="btn btn--ghost"
+                        disabled={enviandoId === a.id}
+                        onClick={() => handleDevolver(a.id, "MALO")}
+                      >
+                        Mal estado
+                      </button>
+                    </div>
+                  </div>
                 )}
               </div>
             </li>
