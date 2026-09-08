@@ -1,10 +1,18 @@
 import { Outlet, Link, useNavigate } from "react-router-dom";
+import { Suspense } from "react";
 import { useAuth } from "../lib/AuthContext";
+import { useCarrito } from "../lib/CarritoContext";
 import "./main-layout.css";
+
+function CargandoContenido() {
+  return <p role="status" style={{ padding: "var(--space-6)" }}>Cargando…</p>;
+}
 
 export function MainLayout() {
   const { usuario, cerrarSesion } = useAuth();
+  const { items, abrirCarrito } = useCarrito();
   const navigate = useNavigate();
+  const esAdmin = usuario?.rol === "ADMINISTRADOR";
 
   function handleLogout() {
     cerrarSesion();
@@ -13,19 +21,42 @@ export function MainLayout() {
 
   return (
     <div className="layout">
-      {/* Landmark de accesibilidad: permite saltar la navegación repetitiva (WCAG 2.4.1) */}
       <a href="#contenido-principal" className="skip-link">Saltar al contenido principal</a>
 
       <header className="layout__header">
-        <Link to="/" className="layout__brand">Alquiler de Disfraces</Link>
+        <Link to="/" className="layout__brand">DisfracesPro</Link>
 
         <nav aria-label="Navegación principal" className="layout__nav">
-          <Link to="/catalogo">Catálogo</Link>
-          <Link to="/conjuntos">Conjuntos</Link>
-          {usuario?.rol === "ADMINISTRADOR" && <Link to="/admin/piezas">Administrar piezas</Link>}
+          {esAdmin ? (
+            <>
+              <Link to="/admin/dashboard">Dashboard</Link>
+              <Link to="/admin/devoluciones">Devoluciones</Link>
+              <Link to="/admin/reportes">Reportes</Link>
+              <Link to="/admin/proveedores">Proveedores</Link>
+              <Link to="/admin/stock">Stock</Link>
+              <Link to="/conjuntos/nuevo">Crear conjunto</Link>
+            </>
+          ) : (
+            <>
+              <Link to="/catalogo">Catálogo</Link>
+              <Link to="/conjuntos">Conjuntos</Link>
+              {usuario && <Link to="/conjuntos/nuevo">Armar conjunto</Link>}
+              {usuario && <Link to="/mis-alquileres">Mis alquileres</Link>}
+            </>
+          )}
         </nav>
 
         <div className="layout__session">
+          {usuario && !esAdmin && (
+            <button
+              type="button"
+              onClick={abrirCarrito}
+              className="btn btn--primary"
+              aria-label={`Abrir carrito, ${items.length} artículos`}
+            >
+              🛒 Carrito {items.length > 0 && `(${items.length})`}
+            </button>
+          )}
           {usuario ? (
             <>
               <span className="layout__usuario">Hola, {usuario.nombre}</span>
@@ -40,12 +71,10 @@ export function MainLayout() {
       </header>
 
       <main id="contenido-principal" className="layout__main">
-        <Outlet />
+        <Suspense fallback={<CargandoContenido />}>
+          <Outlet />
+        </Suspense>
       </main>
-
-      <footer className="layout__footer">
-        <p>Proyecto académico — UTP · Sistema de Alquiler de Disfraces</p>
-      </footer>
     </div>
   );
 }

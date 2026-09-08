@@ -1,0 +1,53 @@
+.reportes__seccion {
+  font-size: 1rem;
+  margin: var(--space-5) 0 var(--space-3);
+}
+
+.reportes__combos {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: var(--space-3);
+}
+
+.reportes__combo {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+.reportes__combo-num {
+  font-family: var(--font-display);
+  font-size: 1.2rem;
+  color: var(--accent);
+}
+.reportes__combo-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  font-size: 0.9rem;
+}
+.reportes__combo-meta {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+.reportes__combo-veces {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.reportes__tabla {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+}
+.reportes__tabla th {
+  text-align: left;
+  color: var(--text-muted);
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  padding-bottom: var(--space-2);
+  border-bottom: 1px solid var(--border);
+}
+.reportes__tabla td {
+  padding: var(--space-2) 0;
+  border-bottom: 1px solid var(--border);
+}
