@@ -3,74 +3,61 @@ import { Link } from "react-router-dom";
 import { api } from "../../lib/api";
 import { useAuth } from "../../lib/AuthContext";
 import { useCarrito } from "../../lib/CarritoContext";
-import { iconoPorTipo, colorPorSemilla } from "../../lib/iconos";
-import { tallasPorDefecto, coloresPorDefecto } from "../../lib/opciones";
+import { iconoPorTemporada, colorPorSemilla } from "../../lib/iconos";
 import "./catalogo.css";
 
-interface Pieza {
+interface Prenda {
   id: string;
   nombre: string;
   tipo: string;
-  tallaEEUU: string;
   color: string;
-  temporadaOriginal: string;
-  stock: number;
-  precioAlquiler: string;
-  tallasDisponibles: string[];
-  coloresDisponibles: string[];
+  talla: string;
+  estado: string;
 }
 
-const TIPOS = ["SOMBRERO", "CAMISA_POLO", "PANTALON", "ZAPATO_ZAPATILLA", "ABRIGO", "CHALECO", "TRAJE", "TACON", "ACCESORIO"];
-
-const PALETA_COLORES: { nombre: string; hex: string }[] = [
-  { nombre: "negro", hex: "#2B2118" },
-  { nombre: "blanco", hex: "#F5F1E8" },
-  { nombre: "gris", hex: "#9B9488" },
-  { nombre: "rojo", hex: "#C0392B" },
-  { nombre: "azul", hex: "#2C6FA8" },
-  { nombre: "verde", hex: "#3C8C5D" },
-  { nombre: "marrón", hex: "#7A5230" },
-  { nombre: "dorado", hex: "#C9A227" },
-  { nombre: "plateado", hex: "#B8BEC4" },
-  { nombre: "multicolor", hex: "conic-gradient(#C0392B,#C9A227,#3C8C5D,#2C6FA8,#7A5230)" },
-];
+interface Disfraz {
+  id: string;
+  nombre: string;
+  tipoDisfraz: string;
+  temporadaEvento: string;
+  precioAlquiler: string;
+  completo: boolean;
+  prendasHogar: Prenda[];
+}
 
 export default function Catalogo() {
-  const [piezas, setPiezas] = useState<Pieza[]>([]);
-  const [cargando, setCargando] = useState(true);
-  const [busqueda, setBusqueda] = useState("");
-  const [tiposFiltro, setTiposFiltro] = useState<Set<string>>(new Set());
-  const [temporadasFiltro, setTemporadasFiltro] = useState<Set<string>>(new Set());
-  const [coloresFiltro, setColoresFiltro] = useState<Set<string>>(new Set());
+  const [disfraces, setDisfraces] = useState<Disfraz[]>([]);
   const [temporadasDisponibles, setTemporadasDisponibles] = useState<string[]>([]);
-  const [tallaElegida, setTallaElegida] = useState<Record<string, string>>({});
-  const [colorElegido, setColorElegido] = useState<Record<string, string>>({});
+  const [tiposDisponibles, setTiposDisponibles] = useState<string[]>([]);
+  const [busqueda, setBusqueda] = useState("");
+  const [temporadasFiltro, setTemporadasFiltro] = useState<Set<string>>(new Set());
+  const [tiposFiltro, setTiposFiltro] = useState<Set<string>>(new Set());
+  const [cargando, setCargando] = useState(true);
   const { usuario } = useAuth();
-  const { agregarItem } = useCarrito();
+  const { agregarItem, items } = useCarrito();
 
   useEffect(() => {
-    api.get("/catalogo/temporadas").then(({ data }) => setTemporadasDisponibles(data));
+    api.get("/disfraces/temporadas").then(({ data }) => setTemporadasDisponibles(data));
+    api.get("/disfraces/tipos").then(({ data }) => setTiposDisponibles(data));
   }, []);
 
-  const cargarPiezas = useCallback(async () => {
+  const cargar = useCallback(async () => {
     setCargando(true);
     const params: Record<string, string> = {};
     if (busqueda) params.nombre = busqueda;
-    if (tiposFiltro.size) params.tipos = Array.from(tiposFiltro).join(",");
     if (temporadasFiltro.size) params.temporadas = Array.from(temporadasFiltro).join(",");
-    if (coloresFiltro.size) params.colores = Array.from(coloresFiltro).join(",");
-
-    const { data } = await api.get("/catalogo", { params });
-    setPiezas(data);
+    if (tiposFiltro.size) params.tipos = Array.from(tiposFiltro).join(",");
+    const { data } = await api.get("/disfraces", { params });
+    setDisfraces(data);
     setCargando(false);
-  }, [busqueda, tiposFiltro, temporadasFiltro, coloresFiltro]);
+  }, [busqueda, temporadasFiltro, tiposFiltro]);
 
   useEffect(() => {
-    const timeout = setTimeout(cargarPiezas, 300);
+    const timeout = setTimeout(cargar, 300);
     return () => clearTimeout(timeout);
-  }, [cargarPiezas]);
+  }, [cargar]);
 
-  function toggleEnSet(set: Set<string>, valor: string, setter: (s: Set<string>) => void) {
+  function toggle(set: Set<string>, valor: string, setter: (s: Set<string>) => void) {
     const copia = new Set(set);
     copia.has(valor) ? copia.delete(valor) : copia.add(valor);
     setter(copia);
@@ -78,36 +65,18 @@ export default function Catalogo() {
 
   function limpiarFiltros() {
     setBusqueda("");
-    setTiposFiltro(new Set());
     setTemporadasFiltro(new Set());
-    setColoresFiltro(new Set());
+    setTiposFiltro(new Set());
   }
 
-  const hayFiltrosActivos =
-    busqueda !== "" || tiposFiltro.size > 0 || temporadasFiltro.size > 0 || coloresFiltro.size > 0;
+  const hayFiltrosActivos = busqueda !== "" || temporadasFiltro.size > 0 || tiposFiltro.size > 0;
 
-  function opcionesTalla(p: Pieza) {
-    return p.tallasDisponibles?.length ? p.tallasDisponibles : tallasPorDefecto(p.tipo);
-  }
-  function opcionesColor(p: Pieza) {
-    return p.coloresDisponibles?.length ? p.coloresDisponibles : coloresPorDefecto();
-  }
-
-  function handleAgregar(p: Pieza) {
-    const talla = tallaElegida[p.id] || opcionesTalla(p)[0];
-    const color = colorElegido[p.id] || opcionesColor(p)[0];
+  function handleAgregar(d: Disfraz) {
     agregarItem({
-      nombreConjunto: p.nombre,
-      piezas: [
-        {
-          id: p.id,
-          nombre: p.nombre,
-          tipo: p.tipo,
-          tallaEEUU: talla,
-          color,
-          precioAlquiler: Number(p.precioAlquiler),
-        },
-      ],
+      disfrazFisicoId: d.id,
+      nombre: d.nombre,
+      tipoDisfraz: d.tipoDisfraz,
+      precioAlquiler: Number(d.precioAlquiler),
     });
   }
 
@@ -124,9 +93,9 @@ export default function Catalogo() {
         </div>
 
         <div className="field">
-          <label htmlFor="buscar-pieza" className="visually-hidden">Buscar</label>
+          <label htmlFor="buscar-disfraz" className="visually-hidden">Buscar</label>
           <input
-            id="buscar-pieza"
+            id="buscar-disfraz"
             type="text"
             placeholder="Buscar…"
             value={busqueda}
@@ -135,15 +104,11 @@ export default function Catalogo() {
         </div>
 
         <fieldset className="catalogo__grupo">
-          <legend>Categoría</legend>
-          {TIPOS.map((t) => (
+          <legend>Tipo de disfraz</legend>
+          {tiposDisponibles.map((t) => (
             <label key={t} className="catalogo__checkbox">
-              <input
-                type="checkbox"
-                checked={tiposFiltro.has(t)}
-                onChange={() => toggleEnSet(tiposFiltro, t, setTiposFiltro)}
-              />
-              {t.replace("_", " / ")}
+              <input type="checkbox" checked={tiposFiltro.has(t)} onChange={() => toggle(tiposFiltro, t, setTiposFiltro)} />
+              {t}
             </label>
           ))}
         </fieldset>
@@ -155,95 +120,56 @@ export default function Catalogo() {
               <input
                 type="checkbox"
                 checked={temporadasFiltro.has(t)}
-                onChange={() => toggleEnSet(temporadasFiltro, t, setTemporadasFiltro)}
+                onChange={() => toggle(temporadasFiltro, t, setTemporadasFiltro)}
               />
               {t.charAt(0).toUpperCase() + t.slice(1)}
             </label>
           ))}
         </fieldset>
-
-        <fieldset className="catalogo__grupo">
-          <legend>Color</legend>
-          <div className="catalogo__swatches">
-            {PALETA_COLORES.map((c) => (
-              <button
-                key={c.nombre}
-                type="button"
-                className={`catalogo__swatch ${coloresFiltro.has(c.nombre) ? "catalogo__swatch--activo" : ""}`}
-                style={{ background: c.hex }}
-                aria-pressed={coloresFiltro.has(c.nombre)}
-                aria-label={`Filtrar por color ${c.nombre}`}
-                title={c.nombre}
-                onClick={() => toggleEnSet(coloresFiltro, c.nombre, setColoresFiltro)}
-              />
-            ))}
-          </div>
-        </fieldset>
       </aside>
 
       <section aria-label="Resultados del catálogo" className="catalogo__resultados">
         {cargando ? (
-          <p role="status">Cargando piezas…</p>
-        ) : piezas.length === 0 ? (
-          <p>No se encontraron piezas con estos filtros.</p>
+          <p role="status">Cargando disfraces…</p>
+        ) : disfraces.length === 0 ? (
+          <p>No se encontraron disfraces con estos filtros.</p>
         ) : (
           <ul className="catalogo__grid">
-            {piezas.map((p) => (
-              <li key={p.id} className="card catalogo__item">
-                <div
-                  className="catalogo__imagen"
-                  style={{ background: colorPorSemilla(p.tipo) }}
-                  aria-hidden="true"
-                >
-                  <span className="catalogo__icono">{iconoPorTipo(p.tipo)}</span>
-                </div>
-                <h3 style={{ fontSize: "1rem" }}>{p.nombre}</h3>
-                <p className="catalogo__meta">{p.tipo.replace("_", " / ")} · Temporada: {p.temporadaOriginal}</p>
-                <p className="catalogo__precio">S/ {p.precioAlquiler} / día</p>
-                <p className="catalogo__stock">{p.stock > 0 ? `${p.stock} disponibles` : "Sin stock"}</p>
+            {disfraces.map((d) => {
+              const enCarrito = items.some((i) => i.disfrazFisicoId === d.id);
+              return (
+                <li key={d.id} className="card catalogo__item">
+                  <div className="catalogo__imagen" style={{ background: colorPorSemilla(d.temporadaEvento) }} aria-hidden="true">
+                    <span className="catalogo__icono">{iconoPorTemporada(d.temporadaEvento)}</span>
+                  </div>
+                  <h3 style={{ fontSize: "1rem" }}>{d.nombre}</h3>
+                  <p className="catalogo__meta">{d.tipoDisfraz} · Temporada: {d.temporadaEvento}</p>
+                  <p className="catalogo__precio">S/ {d.precioAlquiler} / día</p>
+                  <span className={`catalogo__estado ${d.completo ? "catalogo__estado--ok" : "catalogo__estado--incompleto"}`}>
+                    {d.completo ? "Disponible" : "Incompleto — no disponible"}
+                  </span>
 
-                {usuario ? (
-                  <>
-                    <div className="catalogo__variantes">
-                      <div className="field">
-                        <label htmlFor={`talla-${p.id}`}>Talla</label>
-                        <select
-                          id={`talla-${p.id}`}
-                          value={tallaElegida[p.id] || opcionesTalla(p)[0]}
-                          onChange={(e) => setTallaElegida((prev) => ({ ...prev, [p.id]: e.target.value }))}
-                        >
-                          {opcionesTalla(p).map((t) => (
-                            <option key={t} value={t}>{t}</option>
-                          ))}
-                        </select>
-                      </div>
-                      <div className="field">
-                        <label htmlFor={`color-${p.id}`}>Color</label>
-                        <select
-                          id={`color-${p.id}`}
-                          value={colorElegido[p.id] || opcionesColor(p)[0]}
-                          onChange={(e) => setColorElegido((prev) => ({ ...prev, [p.id]: e.target.value }))}
-                        >
-                          {opcionesColor(p).map((c) => (
-                            <option key={c} value={c}>{c}</option>
-                          ))}
-                        </select>
-                      </div>
-                    </div>
+                  <ul className="catalogo__prendas">
+                    {d.prendasHogar.map((p) => (
+                      <li key={p.id}>{p.nombre} · {p.color} · {p.talla}</li>
+                    ))}
+                  </ul>
+
+                  {usuario ? (
                     <button
                       type="button"
                       className="btn btn--primary"
-                      disabled={p.stock === 0}
-                      onClick={() => handleAgregar(p)}
+                      disabled={!d.completo || enCarrito}
+                      onClick={() => handleAgregar(d)}
                     >
-                      Agregar al carrito
+                      {enCarrito ? "En el carrito" : "Agregar al carrito"}
                     </button>
-                  </>
-                ) : (
-                  <Link to="/login" className="btn btn--ghost">Inicia sesión para alquilar</Link>
-                )}
-              </li>
-            ))}
+                  ) : (
+                    <Link to="/login" className="btn btn--ghost">Inicia sesión para alquilar</Link>
+                  )}
+                </li>
+              );
+            })}
           </ul>
         )}
       </section>

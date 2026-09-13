@@ -33,14 +33,10 @@ export function MainLayout() {
               <Link to="/admin/devoluciones">Devoluciones</Link>
               <Link to="/admin/reportes">Reportes</Link>
               <Link to="/admin/proveedores">Proveedores</Link>
-              <Link to="/admin/stock">Stock</Link>
-              <Link to="/conjuntos/nuevo">Crear conjunto</Link>
             </>
           ) : (
             <>
-              <Link to="/catalogo">Catálogo</Link>
-              <Link to="/conjuntos">Conjuntos</Link>
-              {usuario && <Link to="/conjuntos/nuevo">Armar conjunto</Link>}
+              <Link to="/catalogo">Disfraces</Link>
               {usuario && <Link to="/mis-alquileres">Mis alquileres</Link>}
             </>
           )}

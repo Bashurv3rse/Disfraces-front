@@ -1,16 +1,14 @@
-// Iconos temáticos (sin depender de fotos externas al azar) — cada tipo de pieza
-// y cada temporada tiene un emoji + color consistente para dar identidad visual.
-
 export const ICONO_POR_TIPO: Record<string, string> = {
   SOMBRERO: "🎩",
-  CAMISA_POLO: "👕",
+  CAMISA: "👕",
   PANTALON: "👖",
-  ZAPATO_ZAPATILLA: "👟",
+  FALDA: "👗",
+  ZAPATO: "👟",
   ABRIGO: "🧥",
   CHALECO: "🦺",
-  TRAJE: "🥻",
-  TACON: "👠",
   ACCESORIO: "💍",
+  PANUELO: "🧣",
+  TACON: "👠",
 };
 
 export const ICONO_POR_TEMPORADA: Record<string, string> = {
@@ -19,6 +17,9 @@ export const ICONO_POR_TEMPORADA: Record<string, string> = {
   gala: "✨",
   verano: "🏖️",
   carnaval: "🎭",
+  criollo: "💃",
+  boda: "💍",
+  deportivo: "⚽",
 };
 
 const COLORES_FONDO = ["#F1DFC4", "#E7D9E8", "#D9E8E2", "#F0DCD3", "#DDE3EF"];
@@ -35,5 +36,5 @@ export function iconoPorTipo(tipo: string): string {
 
 export function iconoPorTemporada(temporada: string): string {
   const clave = temporada.toLowerCase().trim();
-  return ICONO_POR_TEMPORADA[clave] || "👗";
+  return ICONO_POR_TEMPORADA[clave] || "🎭";
 }

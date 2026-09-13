@@ -10,14 +10,11 @@ import { ErrorBoundary } from "./components/ErrorBoundary";
 const Login = lazy(() => import("./pages/auth/Login"));
 const Registro = lazy(() => import("./pages/auth/Registro"));
 const Catalogo = lazy(() => import("./pages/catalogo/Catalogo"));
-const Conjuntos = lazy(() => import("./pages/conjuntos/Conjuntos"));
-const ArmarConjunto = lazy(() => import("./pages/conjuntos/ArmarConjunto"));
 const MisAlquileres = lazy(() => import("./pages/alquileres/MisAlquileres"));
 const Dashboard = lazy(() => import("./pages/admin/Dashboard"));
 const Devoluciones = lazy(() => import("./pages/admin/Devoluciones"));
 const Reportes = lazy(() => import("./pages/admin/Reportes"));
 const Proveedores = lazy(() => import("./pages/admin/Proveedores"));
-const Stock = lazy(() => import("./pages/admin/Stock"));
 
 function Inicio() {
   const { usuario } = useAuth();
@@ -36,8 +33,6 @@ export default function App() {
                 <Route path="/login" element={<Login />} />
                 <Route path="/registro" element={<Registro />} />
                 <Route path="/catalogo" element={<Catalogo />} />
-                <Route path="/conjuntos" element={<Conjuntos />} />
-                <Route path="/conjuntos/nuevo" element={<ProtectedRoute><ArmarConjunto /></ProtectedRoute>} />
                 <Route path="/mis-alquileres" element={<ProtectedRoute><MisAlquileres /></ProtectedRoute>} />
                 <Route
                   path="/admin/dashboard"
@@ -54,10 +49,6 @@ export default function App() {
                 <Route
                   path="/admin/proveedores"
                   element={<ProtectedRoute rolesPermitidos={["ADMINISTRADOR"]}><Proveedores /></ProtectedRoute>}
-                />
-                <Route
-                  path="/admin/stock"
-                  element={<ProtectedRoute rolesPermitidos={["ADMINISTRADOR"]}><Stock /></ProtectedRoute>}
                 />
               </Route>
             </Routes>

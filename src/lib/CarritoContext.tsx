@@ -1,25 +1,17 @@
 import { createContext, useContext, useState, useCallback } from "react";
 import type { ReactNode } from "react";
 
-export interface PiezaCarrito {
-  id: string;
-  nombre: string;
-  tipo: string;
-  tallaEEUU: string;
-  color: string;
-  precioAlquiler: number;
-}
-
 export interface ItemCarrito {
-  id: string;
-  nombreConjunto: string;
-  piezas: PiezaCarrito[];
+  disfrazFisicoId: string;
+  nombre: string;
+  tipoDisfraz: string;
+  precioAlquiler: number;
 }
 
 interface CarritoContextValue {
   items: ItemCarrito[];
-  agregarItem: (item: Omit<ItemCarrito, "id">) => void;
-  quitarItem: (id: string) => void;
+  agregarItem: (item: ItemCarrito) => void;
+  quitarItem: (disfrazFisicoId: string) => void;
   vaciarCarrito: () => void;
   totalPorDia: number;
   abierto: boolean;
@@ -33,23 +25,20 @@ export function CarritoProvider({ children }: { children: ReactNode }) {
   const [items, setItems] = useState<ItemCarrito[]>([]);
   const [abierto, setAbierto] = useState(false);
 
-  const agregarItem = useCallback((item: Omit<ItemCarrito, "id">) => {
-    setItems((prev) => [...prev, { ...item, id: crypto.randomUUID() }]);
+  const agregarItem = useCallback((item: ItemCarrito) => {
+    setItems((prev) => (prev.some((i) => i.disfrazFisicoId === item.disfrazFisicoId) ? prev : [...prev, item]));
     setAbierto(true);
   }, []);
 
-  const quitarItem = useCallback((id: string) => {
-    setItems((prev) => prev.filter((i) => i.id !== id));
+  const quitarItem = useCallback((disfrazFisicoId: string) => {
+    setItems((prev) => prev.filter((i) => i.disfrazFisicoId !== disfrazFisicoId));
   }, []);
 
   const vaciarCarrito = useCallback(() => setItems([]), []);
   const abrirCarrito = useCallback(() => setAbierto(true), []);
   const cerrarCarrito = useCallback(() => setAbierto(false), []);
 
-  const totalPorDia = items.reduce(
-    (acc, item) => acc + item.piezas.reduce((s, p) => s + Number(p.precioAlquiler), 0),
-    0
-  );
+  const totalPorDia = items.reduce((s, i) => s + i.precioAlquiler, 0);
 
   return (
     <CarritoContext.Provider
