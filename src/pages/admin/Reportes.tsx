@@ -8,7 +8,7 @@ interface Proveedor {
   id: string;
   nombre: string;
   contacto: string;
-  piezas: { pieza: { id: string } }[];
+  prendas: { prenda: { id: string } }[];
 }
 
 export default function Reportes() {
@@ -85,7 +85,7 @@ export default function Reportes() {
                 {proveedores.map((p) => (
                   <tr key={p.id}>
                     <td>{p.nombre}</td>
-                    <td>{p.piezas.length}</td>
+                    <td>{p.prendas.length}</td>
                     <td>{p.contacto}</td>
                   </tr>
                 ))}

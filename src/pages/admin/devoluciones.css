@@ -89,3 +89,27 @@
   background: rgba(192, 57, 43, 0.1);
   color: var(--danger);
 }
+
+.dev-card__prendas li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.dev-card__estado-prenda {
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 1px var(--space-2);
+  border-radius: 999px;
+  white-space: nowrap;
+}
+.dev-card__estado-prenda--buen_estado {
+  background: rgba(60, 140, 93, 0.15);
+  color: var(--success);
+}
+.dev-card__estado-prenda--danada,
+.dev-card__estado-prenda--faltante {
+  background: rgba(192, 57, 43, 0.12);
+  color: var(--danger);
+}

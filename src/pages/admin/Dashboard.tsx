@@ -72,7 +72,7 @@ export default function Dashboard() {
         <div className="card">
           <h2 className="dash-card__titulo">Por categoría</h2>
           {!resumen || resumen.porCategoria.length === 0 ? (
-            <p style={{ color: "var(--text-muted)" }}>Aún no hay piezas alquiladas para mostrar.</p>
+            <p style={{ color: "var(--text-muted)" }}>Aún no hay disfraces alquilados para mostrar.</p>
           ) : (
             <>
               <ResponsiveContainer width="100%" height={220}>
@@ -135,23 +135,19 @@ export default function Dashboard() {
 
       <div className="card">
         <h2 className="dash-card__titulo">
-          <span aria-hidden="true">⚠️</span> Alertas de stock bajo
+          <span aria-hidden="true">⚠️</span> Disfraces incompletos
         </h2>
         {!resumen || resumen.alertasStock.length === 0 ? (
-          <p style={{ color: "var(--text-muted)" }}>No hay piezas con stock bajo por ahora.</p>
+          <p style={{ color: "var(--text-muted)" }}>Todos los disfraces están completos por ahora.</p>
         ) : (
-          <div className="dash-alertas">
+          <ul className="dash-incompletos">
             {resumen.alertasStock.map((a) => (
-              <div key={a.nombre} className="dash-alerta">
+              <li key={a.nombre} className="dash-incompletos__item">
                 <strong>{a.nombre}</strong>
-                <span className="dash-alerta__detalle">{a.detalle}</span>
-                <span className="dash-alerta__unidades">{a.unidades} und.</span>
-                <div className="dash-alerta__barra">
-                  <div className="dash-alerta__barra-fill" style={{ width: `${Math.min(a.unidades * 10, 100)}%` }} />
-                </div>
-              </div>
+                <span className="dash-incompletos__detalle">{a.detalle}</span>
+              </li>
             ))}
-          </div>
+          </ul>
         )}
       </div>
     </div>

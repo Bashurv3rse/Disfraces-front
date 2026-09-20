@@ -15,6 +15,7 @@ const Dashboard = lazy(() => import("./pages/admin/Dashboard"));
 const Devoluciones = lazy(() => import("./pages/admin/Devoluciones"));
 const Reportes = lazy(() => import("./pages/admin/Reportes"));
 const Proveedores = lazy(() => import("./pages/admin/Proveedores"));
+const InventarioFisico = lazy(() => import("./pages/admin/InventarioFisico"));
 
 function Inicio() {
   const { usuario } = useAuth();
@@ -49,6 +50,10 @@ export default function App() {
                 <Route
                   path="/admin/proveedores"
                   element={<ProtectedRoute rolesPermitidos={["ADMINISTRADOR"]}><Proveedores /></ProtectedRoute>}
+                />
+                <Route
+                  path="/admin/inventario"
+                  element={<ProtectedRoute rolesPermitidos={["ADMINISTRADOR"]}><InventarioFisico /></ProtectedRoute>}
                 />
               </Route>
             </Routes>

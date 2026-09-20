@@ -116,7 +116,7 @@ export default function MisAlquileres() {
               </ul>
 
               <p className="alquiler-card__garantia">
-                Garantía (20%): S/ {Number(a.montoGarantia).toFixed(2)} — se devuelve si el disfraz vuelve en buen estado
+                Garantía (25%): S/ {Number(a.montoGarantia).toFixed(2)} — se devuelve si el disfraz vuelve en buen estado
               </p>
 
               <div className="alquiler-card__footer">
@@ -145,4 +145,4 @@ export default function MisAlquileres() {
       )}
     </div>
   );
-} 
+}

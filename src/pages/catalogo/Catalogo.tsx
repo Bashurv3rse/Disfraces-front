@@ -21,9 +21,17 @@ interface Disfraz {
   tipoDisfraz: string;
   temporadaEvento: string;
   precioAlquiler: string;
-  completo: boolean;
+  estado: "DISPONIBLE" | "INCOMPLETO" | "ALQUILADO" | "EN_REPARACION" | "SUSPENDIDO";
   prendasHogar: Prenda[];
 }
+
+const ETIQUETA_ESTADO: Record<string, string> = {
+  DISPONIBLE: "Disponible",
+  INCOMPLETO: "Incompleto",
+  ALQUILADO: "Alquilado",
+  EN_REPARACION: "En reparación",
+  SUSPENDIDO: "No disponible por ahora",
+};
 
 export default function Catalogo() {
   const [disfraces, setDisfraces] = useState<Disfraz[]>([]);
@@ -137,6 +145,7 @@ export default function Catalogo() {
           <ul className="catalogo__grid">
             {disfraces.map((d) => {
               const enCarrito = items.some((i) => i.disfrazFisicoId === d.id);
+              const disponible = d.estado === "DISPONIBLE";
               return (
                 <li key={d.id} className="card catalogo__item">
                   <div className="catalogo__imagen" style={{ background: colorPorSemilla(d.temporadaEvento) }} aria-hidden="true">
@@ -145,8 +154,8 @@ export default function Catalogo() {
                   <h3 style={{ fontSize: "1rem" }}>{d.nombre}</h3>
                   <p className="catalogo__meta">{d.tipoDisfraz} · Temporada: {d.temporadaEvento}</p>
                   <p className="catalogo__precio">S/ {d.precioAlquiler} / día</p>
-                  <span className={`catalogo__estado ${d.completo ? "catalogo__estado--ok" : "catalogo__estado--incompleto"}`}>
-                    {d.completo ? "Disponible" : "Incompleto — no disponible"}
+                  <span className={`catalogo__estado ${disponible ? "catalogo__estado--ok" : "catalogo__estado--incompleto"}`}>
+                    {ETIQUETA_ESTADO[d.estado]}
                   </span>
 
                   <ul className="catalogo__prendas">
@@ -159,7 +168,7 @@ export default function Catalogo() {
                     <button
                       type="button"
                       className="btn btn--primary"
-                      disabled={!d.completo || enCarrito}
+                      disabled={!disponible || enCarrito}
                       onClick={() => handleAgregar(d)}
                     >
                       {enCarrito ? "En el carrito" : "Agregar al carrito"}

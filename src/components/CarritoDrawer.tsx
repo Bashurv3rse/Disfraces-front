@@ -91,12 +91,12 @@ export function CarritoDrawer() {
                 <span>S/ {totalPorDia.toFixed(2)}/día</span>
               </div>
               <div className="carrito-drawer__resumen-linea">
-                <span>Garantía (20%, reembolsable)</span>
-                <span>S/ {(totalPorDia * 0.2).toFixed(2)}</span>
+                <span>Garantía (25%, reembolsable)</span>
+                <span>S/ {(totalPorDia * 0.25).toFixed(2)}</span>
               </div>
               <div className="carrito-drawer__resumen-linea carrito-drawer__resumen-linea--total">
                 <span>Total a pagar</span>
-                <span>S/ {(totalPorDia * 1.2).toFixed(2)}</span>
+                <span>S/ {(totalPorDia * 1.25).toFixed(2)}</span>
               </div>
               <p className="carrito-drawer__resumen-nota">La garantía se devuelve completa si el disfraz vuelve en buen estado.</p>
             </div>
@@ -115,7 +115,7 @@ export function CarritoDrawer() {
             </div>
 
             <button type="submit" className="btn btn--primary" style={{ width: "100%" }} disabled={guardando}>
-              {guardando ? "Confirmando…" : `Confirmar alquiler · S/ ${(totalPorDia * 1.2).toFixed(2)}`}
+              {guardando ? "Confirmando…" : `Confirmar alquiler · S/ ${(totalPorDia * 1.25).toFixed(2)}`}
             </button>
           </form>
         )}

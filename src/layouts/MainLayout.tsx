@@ -33,6 +33,7 @@ export function MainLayout() {
               <Link to="/admin/devoluciones">Devoluciones</Link>
               <Link to="/admin/reportes">Reportes</Link>
               <Link to="/admin/proveedores">Proveedores</Link>
+              <Link to="/admin/inventario">Inventario Físico</Link>
             </>
           ) : (
             <>
