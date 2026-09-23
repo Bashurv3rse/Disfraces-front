@@ -1,4 +1,4 @@
-        import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { api } from "../../lib/api";
 import { iconoPorTipo } from "../../lib/iconos";
 import "./inventario-fisico.css";
@@ -14,6 +14,7 @@ interface Prenda {
 }
 
 type EstadoDisfraz = "DISPONIBLE" | "INCOMPLETO" | "ALQUILADO" | "EN_REPARACION" | "SUSPENDIDO";
+type FaseLavado = "LAVADO" | "PLANCHADO" | "EMPAQUETADO" | null;
 
 interface Disfraz {
   id: string;
@@ -21,7 +22,9 @@ interface Disfraz {
   tipoDisfraz: string;
   precioAlquiler: string;
   estado: EstadoDisfraz;
+  faseLavado: FaseLavado;
   faltantes: number;
+  prestamosSalientes: number;
   prendasHogar: Prenda[];
   prendasActuales: Prenda[];
 }
@@ -41,7 +44,13 @@ const ETIQUETA_ESTADO: Record<EstadoDisfraz, string> = {
   INCOMPLETO: "Incompleto",
   ALQUILADO: "Alquilado",
   EN_REPARACION: "En reparación",
-  SUSPENDIDO: "Suspendido (lavado)",
+  SUSPENDIDO: "Suspendido",
+};
+
+const ETIQUETA_FASE: Record<string, string> = {
+  LAVADO: "Lavado (día 1/3)",
+  PLANCHADO: "Planchado (día 2/3)",
+  EMPAQUETADO: "Empaquetado (día 3/3)",
 };
 
 export default function InventarioFisico() {
@@ -51,6 +60,7 @@ export default function InventarioFisico() {
   const [cargando, setCargando] = useState(true);
   const [buscandoReemplazoPara, setBuscandoReemplazoPara] = useState<Prenda | null>(null);
   const [candidatos, setCandidatos] = useState<Candidato[]>([]);
+  const [error, setError] = useState<string | null>(null);
 
   const cargar = useCallback(async () => {
     setCargando(true);
@@ -68,6 +78,15 @@ export default function InventarioFisico() {
   }, [disfraces, seleccionadoId]);
 
   const seleccionado = disfraces.find((d) => d.id === seleccionadoId) || null;
+  const bloqueado = seleccionado?.estado === "ALQUILADO";
+
+  const conteos = disfraces.reduce(
+    (acc, d) => {
+      acc[d.estado] = (acc[d.estado] || 0) + 1;
+      return acc;
+    },
+    {} as Record<EstadoDisfraz, number>
+  );
 
   const grupos = disfraces
     .filter((d) => d.nombre.toLowerCase().includes(busqueda.toLowerCase()))
@@ -76,9 +95,18 @@ export default function InventarioFisico() {
       return acc;
     }, {});
 
+  function mostrarError(err: any) {
+    setError(err.response?.data?.mensaje || "No se pudo completar la acción");
+    setTimeout(() => setError(null), 4000);
+  }
+
   async function marcarEstadoPrenda(prendaId: string, estado: "DISPONIBLE" | "FALTANTE") {
-    await api.patch(`/disfraces/prendas/${prendaId}`, { estado });
-    cargar();
+    try {
+      await api.patch(`/disfraces/prendas/${prendaId}`, { estado });
+      cargar();
+    } catch (err: any) {
+      mostrarError(err);
+    }
   }
 
   async function abrirBuscarReemplazo(prenda: Prenda) {
@@ -89,141 +117,195 @@ export default function InventarioFisico() {
 
   async function confirmarPrestamo(candidatoId: string) {
     if (!buscandoReemplazoPara) return;
-    await api.post(`/disfraces/prendas/${buscandoReemplazoPara.id}/prestamo`, { prendaDonanteId: candidatoId });
-    setBuscandoReemplazoPara(null);
-    setCandidatos([]);
-    cargar();
+    try {
+      await api.post(`/disfraces/prendas/${buscandoReemplazoPara.id}/prestamo`, { prendaDonanteId: candidatoId });
+      setBuscandoReemplazoPara(null);
+      setCandidatos([]);
+      cargar();
+    } catch (err: any) {
+      mostrarError(err);
+    }
   }
 
   async function marcarListo(disfrazId: string) {
-    await api.patch(`/disfraces/${disfrazId}/estado-manual`, { estado: null });
-    cargar();
+    try {
+      await api.patch(`/disfraces/${disfrazId}/estado-manual`, { estado: null });
+      cargar();
+    } catch (err: any) {
+      mostrarError(err);
+    }
   }
 
   async function marcarEnReparacion(disfrazId: string) {
-    await api.patch(`/disfraces/${disfrazId}/estado-manual`, { estado: "EN_REPARACION" });
-    cargar();
+    try {
+      await api.patch(`/disfraces/${disfrazId}/estado-manual`, { estado: "EN_REPARACION" });
+      cargar();
+    } catch (err: any) {
+      mostrarError(err);
+    }
   }
 
   return (
-    <div className="inventario">
-      <aside className="inventario__sidebar">
-        <h1 style={{ fontSize: "1.1rem", marginBottom: "var(--space-3)" }}>Inventario Físico</h1>
-        <input
-          type="text"
-          placeholder="Buscar disfraz…"
-          className="inventario__buscar"
-          value={busqueda}
-          onChange={(e) => setBusqueda(e.target.value)}
-        />
+    <div>
+      <div className="inventario__resumen">
+        {(["DISPONIBLE", "INCOMPLETO", "ALQUILADO", "EN_REPARACION"] as EstadoDisfraz[]).map((e) => (
+          <div key={e} className={`inventario__resumen-pill inventario__resumen-pill--${e.toLowerCase()}`}>
+            <span className="inventario__resumen-dot" />
+            {ETIQUETA_ESTADO[e]} <strong>{conteos[e] || 0}</strong>
+          </div>
+        ))}
+      </div>
 
-        {cargando ? (
-          <p role="status">Cargando…</p>
-        ) : (
-          Object.entries(grupos).map(([tipo, lista]) => (
-            <div key={tipo} className="inventario__grupo">
-              <h2 className="inventario__grupo-titulo">{tipo}</h2>
-              {lista.map((d) => (
-                <button
-                  key={d.id}
-                  type="button"
-                  className={`inventario__disfraz-btn ${d.id === seleccionadoId ? "inventario__disfraz-btn--activo" : ""}`}
-                  onClick={() => setSeleccionadoId(d.id)}
-                >
-                  <span>{d.nombre}</span>
-                  <span className={`inventario__estado-badge inventario__estado-badge--${d.estado.toLowerCase()}`}>
-                    {d.estado === "INCOMPLETO" ? `${d.faltantes} falt.` : ETIQUETA_ESTADO[d.estado]}
-                  </span>
-                </button>
-              ))}
-            </div>
-          ))
-        )}
-      </aside>
+      {error && <div className="alert alert--danger" role="alert" style={{ marginBottom: "var(--space-4)" }}>{error}</div>}
 
-      <section className="inventario__detalle">
-        {!seleccionado ? (
-          <p style={{ color: "var(--text-muted)" }}>Selecciona un disfraz para ver el detalle.</p>
-        ) : (
-          <>
-            <div className="inventario__detalle-header">
-              <div>
-                <div className="inventario__detalle-titulo">
-                  <h2>{seleccionado.nombre}</h2>
-                  <span className={`inventario__estado-badge inventario__estado-badge--${seleccionado.estado.toLowerCase()}`}>
-                    {ETIQUETA_ESTADO[seleccionado.estado]}
-                  </span>
-                </div>
-                <p style={{ color: "var(--text-muted)" }}>S/ {seleccionado.precioAlquiler}/día · {seleccionado.tipoDisfraz}</p>
-              </div>
-              <div className="inventario__detalle-acciones">
-                {seleccionado.estado === "SUSPENDIDO" && (
-                  <button type="button" className="btn btn--primary" onClick={() => marcarListo(seleccionado.id)}>
-                    Marcar como listo
-                  </button>
-                )}
-                {seleccionado.estado === "EN_REPARACION" ? (
-                  <button type="button" className="btn btn--ghost" onClick={() => marcarListo(seleccionado.id)}>
-                    Salir de reparación
-                  </button>
-                ) : (
-                  seleccionado.estado !== "SUSPENDIDO" && (
-                    <button type="button" className="btn btn--ghost" onClick={() => marcarEnReparacion(seleccionado.id)}>
-                      Marcar en reparación
-                    </button>
-                  )
-                )}
-              </div>
-            </div>
+      <div className="inventario">
+        <aside className="inventario__sidebar">
+          <h1 style={{ fontSize: "1.1rem", marginBottom: "var(--space-3)" }}>Inventario Físico</h1>
+          <input
+            type="text"
+            placeholder="Buscar disfraz…"
+            className="inventario__buscar"
+            value={busqueda}
+            onChange={(e) => setBusqueda(e.target.value)}
+          />
 
-            <div className="inventario__prendas">
-              {seleccionado.prendasHogar.map((p) => {
-                const actual = seleccionado.prendasActuales.find((pa) => pa.id === p.id);
-                const presente = !!actual && actual.estado === "DISPONIBLE";
-
-                return (
-                  <div key={p.id} className={`inventario__prenda ${!presente ? "inventario__prenda--alerta" : ""}`}>
-                    <div className="inventario__prenda-info">
-                      <span className="inventario__prenda-icono">{iconoPorTipo(p.tipo)}</span>
-                      <div>
-                        <strong>{p.nombre}</strong>
-                        <span className="inventario__prenda-meta">{p.color} · {p.talla} · tipo: {p.tipo.toLowerCase()}</span>
-                      </div>
-                      <span className="inventario__pill">{p.calidad}</span>
-                      <span className={`inventario__pill ${presente ? "inventario__pill--ok" : "inventario__pill--no"}`}>
-                        {presente ? "Presente" : "Faltante"}
-                      </span>
-                    </div>
-
-                    <div className="inventario__prenda-acciones">
-                      {presente ? (
-                        <button type="button" className="btn btn--ghost" onClick={() => marcarEstadoPrenda(p.id, "FALTANTE")}>
-                          Marcar faltante
-                        </button>
-                      ) : (
-                        <>
-                          <button type="button" className="btn btn--ghost" onClick={() => marcarEstadoPrenda(p.id, "DISPONIBLE")}>
-                            Marcar presente
-                          </button>
-                          <button type="button" className="btn btn--primary" onClick={() => abrirBuscarReemplazo(p)}>
-                            Buscar reemplazo →
-                          </button>
-                        </>
+          {cargando ? (
+            <p role="status">Cargando…</p>
+          ) : (
+            Object.entries(grupos).map(([tipo, lista]) => (
+              <div key={tipo} className="inventario__grupo">
+                <h2 className="inventario__grupo-titulo">{tipo}</h2>
+                {lista.map((d) => (
+                  <button
+                    key={d.id}
+                    type="button"
+                    className={`inventario__disfraz-btn ${d.id === seleccionadoId ? "inventario__disfraz-btn--activo" : ""}`}
+                    onClick={() => setSeleccionadoId(d.id)}
+                  >
+                    <span className="inventario__disfraz-nombre">
+                      {d.nombre}
+                      {d.prestamosSalientes > 0 && (
+                        <span className="inventario__prestamo-alerta" title={`Prestó ${d.prestamosSalientes} pieza(s) a otro disfraz`}>
+                          ⚠
+                        </span>
                       )}
-                    </div>
+                    </span>
+                    <span className={`inventario__estado-badge inventario__estado-badge--${d.estado.toLowerCase()}`}>
+                      {d.estado === "INCOMPLETO"
+                        ? `${d.faltantes} falt.`
+                        : d.estado === "SUSPENDIDO" && d.faseLavado
+                        ? ETIQUETA_FASE[d.faseLavado]
+                        : ETIQUETA_ESTADO[d.estado]}
+                    </span>
+                  </button>
+                ))}
+              </div>
+            ))
+          )}
+        </aside>
 
-                    {!presente && (
-                      <p className="inventario__prenda-aviso">
-                        Esta prenda requerida está faltante. Este disfraz no puede alquilarse hasta resolverlo.
-                      </p>
+        <section className="inventario__detalle">
+          {!seleccionado ? (
+            <p style={{ color: "var(--text-muted)" }}>Selecciona un disfraz para ver el detalle.</p>
+          ) : (
+            <>
+              <div className="inventario__detalle-header">
+                <div>
+                  <div className="inventario__detalle-titulo">
+                    <h2>{seleccionado.nombre}</h2>
+                    <span className={`inventario__estado-badge inventario__estado-badge--${seleccionado.estado.toLowerCase()}`}>
+                      {seleccionado.estado === "SUSPENDIDO" && seleccionado.faseLavado
+                        ? ETIQUETA_FASE[seleccionado.faseLavado]
+                        : ETIQUETA_ESTADO[seleccionado.estado]}
+                    </span>
+                  </div>
+                  <p style={{ color: "var(--text-muted)" }}>S/ {seleccionado.precioAlquiler}/día · {seleccionado.tipoDisfraz}</p>
+                  {seleccionado.prestamosSalientes > 0 && (
+                    <p className="inventario__prestamo-nota">
+                      ⚠ Este disfraz prestó {seleccionado.prestamosSalientes} pieza(s) a otro disfraz.
+                    </p>
+                  )}
+                </div>
+                {!bloqueado && (
+                  <div className="inventario__detalle-acciones">
+                    {seleccionado.estado === "SUSPENDIDO" && (
+                      <button type="button" className="btn btn--primary" onClick={() => marcarListo(seleccionado.id)}>
+                        Marcar como listo
+                      </button>
+                    )}
+                    {seleccionado.estado === "EN_REPARACION" ? (
+                      <button type="button" className="btn btn--ghost" onClick={() => marcarListo(seleccionado.id)}>
+                        Salir de reparación
+                      </button>
+                    ) : (
+                      seleccionado.estado !== "SUSPENDIDO" && (
+                        <button type="button" className="btn btn--ghost" onClick={() => marcarEnReparacion(seleccionado.id)}>
+                          Marcar en reparación
+                        </button>
+                      )
                     )}
                   </div>
-                );
-              })}
-            </div>
-          </>
-        )}
-      </section>
+                )}
+              </div>
+
+              {bloqueado && (
+                <div className="inventario__bloqueado-aviso">
+                  🔒 Este disfraz está alquilado — no se puede modificar hasta que el cliente lo devuelva a la tienda.
+                </div>
+              )}
+
+              <div className="inventario__prendas">
+                {seleccionado.prendasHogar.map((p) => {
+                  const actual = seleccionado.prendasActuales.find((pa) => pa.id === p.id);
+                  const presente = !!actual && actual.estado === "DISPONIBLE";
+                  const prestada = actual ? actual.estado === "DISPONIBLE" && p.id === actual.id : false;
+
+                  return (
+                    <div key={p.id} className={`inventario__prenda ${!presente ? "inventario__prenda--alerta" : ""}`}>
+                      <div className="inventario__prenda-info">
+                        <span className="inventario__prenda-icono">{iconoPorTipo(p.tipo)}</span>
+                        <div>
+                          <strong>{p.nombre}</strong>
+                          <span className="inventario__prenda-meta">{p.color} · {p.talla} · tipo: {p.tipo.toLowerCase()}</span>
+                        </div>
+                        <span className="inventario__pill">{p.calidad}</span>
+                        <span className={`inventario__pill ${presente ? "inventario__pill--ok" : "inventario__pill--no"}`}>
+                          {presente ? "Presente" : "Faltante"}
+                        </span>
+                      </div>
+
+                      {!bloqueado && (
+                        <div className="inventario__prenda-acciones">
+                          {presente ? (
+                            <button type="button" className="btn btn--ghost" onClick={() => marcarEstadoPrenda(p.id, "FALTANTE")}>
+                              Marcar faltante
+                            </button>
+                          ) : (
+                            <>
+                              <button type="button" className="btn btn--ghost" onClick={() => marcarEstadoPrenda(p.id, "DISPONIBLE")}>
+                                Marcar presente
+                              </button>
+                              <button type="button" className="btn btn--primary" onClick={() => abrirBuscarReemplazo(p)}>
+                                Buscar reemplazo →
+                              </button>
+                            </>
+                          )}
+                        </div>
+                      )}
+
+                      {!presente && (
+                        <p className="inventario__prenda-aviso">
+                          Esta prenda requerida está faltante. Este disfraz no puede alquilarse hasta resolverlo.
+                        </p>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </>
+          )}
+        </section>
+      </div>
 
       {buscandoReemplazoPara && (
         <div className="inventario-overlay" onClick={() => setBuscandoReemplazoPara(null)}>

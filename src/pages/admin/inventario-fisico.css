@@ -1,3 +1,30 @@
+.inventario__resumen {
+  display: flex;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+  margin-bottom: var(--space-5);
+}
+.inventario__resumen-pill {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: var(--space-2) var(--space-4);
+  font-size: 0.85rem;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+.inventario__resumen-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+}
+.inventario__resumen-pill--disponible .inventario__resumen-dot { background: var(--success); }
+.inventario__resumen-pill--incompleto .inventario__resumen-dot { background: #A5730F; }
+.inventario__resumen-pill--alquilado .inventario__resumen-dot { background: var(--accent-2-strong); }
+.inventario__resumen-pill--en_reparacion .inventario__resumen-dot { background: var(--danger); }
+
 .inventario {
   display: grid;
   grid-template-columns: 280px 1fr;
@@ -6,19 +33,20 @@
 }
 
 .inventario__sidebar {
-  background: var(--surface);
+  background: var(--surface-raised);
   border: 1px solid var(--border);
   border-radius: var(--radius-md);
   padding: var(--space-4);
-  max-height: calc(100vh - 140px);
+  max-height: calc(100vh - 200px);
   overflow-y: auto;
   position: sticky;
   top: var(--space-4);
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.04);
 }
 
 .inventario__buscar {
   width: 100%;
-  background: var(--bg);
+  background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
   padding: var(--space-2);
@@ -43,22 +71,33 @@
   justify-content: space-between;
   align-items: center;
   gap: var(--space-2);
-  background: transparent;
-  border: 1px solid transparent;
+  background: var(--surface);
+  border: 1px solid var(--border);
   border-radius: var(--radius-sm);
   padding: var(--space-2);
-  margin-bottom: 2px;
+  margin-bottom: var(--space-2);
   font-size: 0.85rem;
   color: var(--text);
   cursor: pointer;
   text-align: left;
 }
 .inventario__disfraz-btn:hover {
-  background: var(--surface-raised);
+  border-color: var(--accent);
 }
 .inventario__disfraz-btn--activo {
   border-color: var(--accent);
   background: rgba(192, 57, 43, 0.08);
+  box-shadow: 0 0 0 1px var(--accent);
+}
+
+.inventario__disfraz-nombre {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+.inventario__prestamo-alerta {
+  color: var(--accent);
+  font-size: 0.85rem;
 }
 
 .inventario__estado-badge {
@@ -94,6 +133,7 @@
   border: 1px solid var(--border);
   border-radius: var(--radius-md);
   padding: var(--space-5);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
 .inventario__detalle-header {
@@ -102,7 +142,7 @@
   align-items: flex-start;
   gap: var(--space-4);
   flex-wrap: wrap;
-  margin-bottom: var(--space-5);
+  margin-bottom: var(--space-4);
   padding-bottom: var(--space-4);
   border-bottom: 1px solid var(--border);
 }
@@ -119,6 +159,21 @@
   gap: var(--space-2);
   flex-wrap: wrap;
 }
+.inventario__prestamo-nota {
+  color: var(--accent);
+  font-size: 0.82rem;
+  margin-top: var(--space-1);
+}
+
+.inventario__bloqueado-aviso {
+  background: rgba(47, 110, 98, 0.1);
+  border: 1px solid var(--accent-2);
+  color: var(--accent-2-strong);
+  border-radius: var(--radius-sm);
+  padding: var(--space-3);
+  font-size: 0.88rem;
+  margin-bottom: var(--space-4);
+}
 
 .inventario__prendas {
   display: flex;
@@ -128,12 +183,13 @@
 
 .inventario__prenda {
   border: 1px solid var(--border);
+  background: var(--surface-raised);
   border-radius: var(--radius-md);
   padding: var(--space-4);
 }
 .inventario__prenda--alerta {
   border-color: var(--accent);
-  background: rgba(232, 163, 61, 0.06);
+  background: rgba(232, 163, 61, 0.08);
 }
 
 .inventario__prenda-info {
@@ -147,12 +203,13 @@
   width: 36px;
   height: 36px;
   border-radius: var(--radius-sm);
-  background: var(--surface-raised);
+  background: var(--surface);
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 1.2rem;
   flex-shrink: 0;
+  border: 1px solid var(--border);
 }
 .inventario__prenda-info > div {
   display: flex;
@@ -168,7 +225,7 @@
   font-weight: 600;
   padding: 2px var(--space-2);
   border-radius: 999px;
-  background: var(--surface-raised);
+  background: var(--surface);
   border: 1px solid var(--border);
   color: var(--text-muted);
 }
@@ -270,13 +327,14 @@
   align-items: center;
   gap: var(--space-3);
   border: 1px solid var(--border);
+  background: var(--surface-raised);
   border-radius: var(--radius-md);
   padding: var(--space-3);
   flex-wrap: wrap;
 }
 .inventario-candidato--top {
   border-color: var(--success);
-  background: rgba(60, 140, 93, 0.06);
+  background: rgba(60, 140, 93, 0.08);
 }
 .inventario-candidato__info {
   display: flex;
@@ -298,7 +356,7 @@
   font-weight: 600;
   padding: 1px var(--space-2);
   border-radius: 999px;
-  background: var(--surface-raised);
+  background: var(--surface);
   border: 1px solid var(--border);
   width: fit-content;
 }
