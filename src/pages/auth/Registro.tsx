@@ -9,12 +9,16 @@ interface ErroresCampo {
   nombre?: string[];
   email?: string[];
   password?: string[];
+  telefono?: string[];
+  direccion?: string[];
 }
 
 export default function Registro() {
   const [nombre, setNombre] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [telefono, setTelefono] = useState("");
+  const [direccion, setDireccion] = useState("");
   const [erroresCampo, setErroresCampo] = useState<ErroresCampo>({});
   const [errorGeneral, setErrorGeneral] = useState<string | null>(null);
   const [cargando, setCargando] = useState(false);
@@ -27,7 +31,7 @@ export default function Registro() {
     setErrorGeneral(null);
     setCargando(true);
     try {
-      const { data } = await api.post("/auth/registro", { nombre, email, password });
+      const { data } = await api.post("/auth/registro", { nombre, email, password, telefono, direccion });
       guardarSesion(data.usuario, data.token);
       navigate("/catalogo");
     } catch (err: any) {
@@ -86,6 +90,44 @@ export default function Registro() {
           {erroresCampo.email && (
             <span id="email-error" className="field__error" role="alert">
               {erroresCampo.email[0]}
+            </span>
+          )}
+        </div>
+
+        <div className="field">
+          <label htmlFor="telefono">Teléfono</label>
+          <input
+            id="telefono"
+            type="tel"
+            autoComplete="tel"
+            required
+            value={telefono}
+            onChange={(e) => setTelefono(e.target.value)}
+            aria-invalid={!!erroresCampo.telefono}
+            aria-describedby={erroresCampo.telefono ? "telefono-error" : undefined}
+          />
+          {erroresCampo.telefono && (
+            <span id="telefono-error" className="field__error" role="alert">
+              {erroresCampo.telefono[0]}
+            </span>
+          )}
+        </div>
+
+        <div className="field">
+          <label htmlFor="direccion">Dirección principal</label>
+          <input
+            id="direccion"
+            type="text"
+            autoComplete="street-address"
+            required
+            value={direccion}
+            onChange={(e) => setDireccion(e.target.value)}
+            aria-invalid={!!erroresCampo.direccion}
+            aria-describedby={erroresCampo.direccion ? "direccion-error" : undefined}
+          />
+          {erroresCampo.direccion && (
+            <span id="direccion-error" className="field__error" role="alert">
+              {erroresCampo.direccion[0]}
             </span>
           )}
         </div>
