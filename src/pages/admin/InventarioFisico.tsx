@@ -258,8 +258,6 @@ export default function InventarioFisico() {
                 {seleccionado.prendasHogar.map((p) => {
                   const actual = seleccionado.prendasActuales.find((pa) => pa.id === p.id);
                   const presente = !!actual && actual.estado === "DISPONIBLE";
-                  const prestada = actual ? actual.estado === "DISPONIBLE" && p.id === actual.id : false;
-
                   return (
                     <div key={p.id} className={`inventario__prenda ${!presente ? "inventario__prenda--alerta" : ""}`}>
                       <div className="inventario__prenda-info">
