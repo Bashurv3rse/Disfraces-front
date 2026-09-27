@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useCallback } from "react";
+import { createContext, useContext, useState } from "react";
 import type { ReactNode } from "react";
 
 interface Usuario {
@@ -10,36 +10,41 @@ interface Usuario {
 
 interface AuthContextValue {
   usuario: Usuario | null;
-  token: string | null;
-  guardarSesion: (usuario: Usuario, token: string) => void;
+  guardarSesion: (usuario: Usuario, accessToken: string, refreshToken: string) => void;
   cerrarSesion: () => void;
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null);
 
+function leerUsuarioGuardado(): Usuario | null {
+  const crudo = localStorage.getItem("usuario");
+  if (!crudo) return null;
+  try {
+    return JSON.parse(crudo);
+  } catch {
+    return null;
+  }
+}
+
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [usuario, setUsuario] = useState<Usuario | null>(() => {
-    const guardado = localStorage.getItem("usuario");
-    return guardado ? JSON.parse(guardado) : null;
-  });
-  const [token, setToken] = useState<string | null>(() => localStorage.getItem("token"));
+  const [usuario, setUsuario] = useState<Usuario | null>(leerUsuarioGuardado);
 
-  const guardarSesion = useCallback((usuario: Usuario, token: string) => {
+  function guardarSesion(usuario: Usuario, accessToken: string, refreshToken: string) {
     localStorage.setItem("usuario", JSON.stringify(usuario));
-    localStorage.setItem("token", token);
+    localStorage.setItem("accessToken", accessToken);
+    localStorage.setItem("refreshToken", refreshToken);
     setUsuario(usuario);
-    setToken(token);
-  }, []);
+  }
 
-  const cerrarSesion = useCallback(() => {
+  function cerrarSesion() {
     localStorage.removeItem("usuario");
-    localStorage.removeItem("token");
+    localStorage.removeItem("accessToken");
+    localStorage.removeItem("refreshToken");
     setUsuario(null);
-    setToken(null);
-  }, []);
+  }
 
   return (
-    <AuthContext.Provider value={{ usuario, token, guardarSesion, cerrarSesion }}>
+    <AuthContext.Provider value={{ usuario, guardarSesion, cerrarSesion }}>
       {children}
     </AuthContext.Provider>
   );

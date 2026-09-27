@@ -32,7 +32,7 @@ export default function Registro() {
     setCargando(true);
     try {
       const { data } = await api.post("/auth/registro", { nombre, email, password, telefono, direccion });
-      guardarSesion(data.usuario, data.token);
+      guardarSesion(data.usuario, data.accessToken, data.refreshToken);
       navigate("/catalogo");
     } catch (err: any) {
       if (err.response?.data?.errores) {
@@ -144,6 +144,9 @@ export default function Registro() {
             aria-invalid={!!erroresCampo.password}
             aria-describedby={erroresCampo.password ? "password-error" : undefined}
           />
+          <span style={{ fontSize: "0.78rem", color: "var(--text-muted)" }}>
+            Mínimo 8 caracteres, con mayúscula, minúscula, número y símbolo (ej. !@#$).
+          </span>
           {erroresCampo.password && (
             <span id="password-error" className="field__error" role="alert">
               {erroresCampo.password[0]}

@@ -19,7 +19,7 @@ export default function Login() {
     setCargando(true);
     try {
       const { data } = await api.post("/auth/login", { email, password });
-      guardarSesion(data.usuario, data.token);
+      guardarSesion(data.usuario, data.accessToken, data.refreshToken);
       navigate(data.usuario.rol === "ADMINISTRADOR" ? "/admin/dashboard" : "/catalogo");
     } catch (err: any) {
       setError(err.response?.data?.mensaje || "No se pudo iniciar sesión");
