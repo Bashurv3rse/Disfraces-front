@@ -1,0 +1,32 @@
+name: Frontend CI
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+
+jobs:
+  frontend:
+    name: Frontend — lint, typecheck y build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Descargar código
+        uses: actions/checkout@v4
+
+      - name: Configurar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24" # 👈 Sincronizado con tus @types/node v24
+          cache: "npm"
+          cache-dependency-path: package-lock.json
+
+      - name: Instalar dependencias
+        run: npm ci
+
+      - name: Ejecutar Linter (Oxlint)
+        run: npm run lint # 👈 Añadido para validar la calidad del código antes de compilar
+
+      - name: Verificar tipos y compilar (Vite)
+        run: npm run build # 👈 Ejecuta tu script "tsc -b && vite build"
