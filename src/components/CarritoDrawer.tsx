@@ -9,34 +9,38 @@ export function CarritoDrawer() {
   const [fechaInicio, setFechaInicio] = useState("");
   const [fechaFin, setFechaFin] = useState("");
   const [evento, setEvento] = useState("");
-  const [confirmado, setConfirmado] = useState(false);
+  const [redirigido, setRedirigido] = useState(false);
+  const [urlPago, setUrlPago] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [guardando, setGuardando] = useState(false);
 
   if (!abierto) return null;
 
-  async function handleConfirmar(e: FormEvent) {
+  async function handlePagar(e: FormEvent) {
     e.preventDefault();
     setError(null);
     setGuardando(true);
     try {
-      await api.post("/alquileres", {
+      const { data } = await api.post("/pagos/crear-sesion", {
         fechaInicio,
         fechaFin,
         evento,
         disfraces: items.map((i) => i.disfrazFisicoId),
       });
+      window.open(data.url, "_blank");
+      setUrlPago(data.url);
+      setRedirigido(true);
       vaciarCarrito();
-      setConfirmado(true);
     } catch (err: any) {
-      setError(err.response?.data?.mensaje || "No se pudo confirmar el alquiler");
+      setError(err.response?.data?.mensaje || "No se pudo iniciar el pago");
     } finally {
       setGuardando(false);
     }
   }
 
   function handleCerrar() {
-    setConfirmado(false);
+    setRedirigido(false);
+    setUrlPago(null);
     setError(null);
     setFechaInicio("");
     setFechaFin("");
@@ -52,15 +56,22 @@ export function CarritoDrawer() {
           <button type="button" className="carrito-drawer__cerrar" onClick={handleCerrar} aria-label="Cerrar carrito">×</button>
         </div>
 
-        {confirmado ? (
+        {redirigido ? (
           <div className="carrito-drawer__confirmado">
-            <p>¡Alquiler confirmado! 🎉</p>
-            <a href="/mis-alquileres" className="btn btn--primary">Ver mis alquileres</a>
+            <p>Se abrió la pasarela de pago en una pestaña nueva. 💳</p>
+            <p style={{ fontSize: "0.85rem", color: "var(--text-muted)" }}>
+              Completa el pago ahí — tu alquiler se confirmará solo cuando el pago sea exitoso.
+            </p>
+            {urlPago && (
+              <a href={urlPago} target="_blank" rel="noopener noreferrer" className="btn btn--ghost" style={{ width: "100%" }}>
+                ¿No se abrió? Abrir la pasarela de pago
+              </a>
+            )}
           </div>
         ) : items.length === 0 ? (
           <p className="carrito-drawer__vacio">Tu carrito está vacío.</p>
         ) : (
-          <form onSubmit={handleConfirmar}>
+          <form onSubmit={handlePagar}>
             {error && <div className="alert alert--danger" role="alert">{error}</div>}
 
             <ul className="carrito-drawer__items">
@@ -115,7 +126,7 @@ export function CarritoDrawer() {
             </div>
 
             <button type="submit" className="btn btn--primary" style={{ width: "100%" }} disabled={guardando}>
-              {guardando ? "Confirmando…" : `Confirmar alquiler · S/ ${(totalPorDia * 1.25).toFixed(2)}`}
+              {guardando ? "Redirigiendo…" : `Pagar · S/ ${(totalPorDia * 1.25).toFixed(2)}`}
             </button>
           </form>
         )}

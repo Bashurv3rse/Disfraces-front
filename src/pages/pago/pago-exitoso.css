@@ -1,0 +1,14 @@
+.pago-exitoso {
+  max-width: 480px;
+  margin: var(--space-7) auto;
+  text-align: center;
+  padding: var(--space-6);
+}
+.pago-exitoso h1 {
+  font-size: 1.4rem;
+  margin-bottom: var(--space-3);
+}
+.pago-exitoso p {
+  color: var(--text-muted);
+  margin-bottom: var(--space-4);
+}
