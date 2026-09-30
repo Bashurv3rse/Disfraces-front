@@ -21,6 +21,7 @@ interface Disfraz {
   tipoDisfraz: string;
   temporadaEvento: string;
   precioAlquiler: string;
+  imagenUrl: string | null;
   estado: "DISPONIBLE" | "INCOMPLETO" | "ALQUILADO" | "EN_REPARACION" | "SUSPENDIDO";
   prendasHogar: Prenda[];
 }
@@ -148,9 +149,21 @@ export default function Catalogo() {
               const disponible = d.estado === "DISPONIBLE";
               return (
                 <li key={d.id} className="card catalogo__item">
-                  <div className="catalogo__imagen" style={{ background: colorPorSemilla(d.temporadaEvento) }} aria-hidden="true">
-                    <span className="catalogo__icono">{iconoPorTemporada(d.temporadaEvento)}</span>
-                  </div>
+                  {d.imagenUrl ? (
+                    <img
+                      src={d.imagenUrl}
+                      alt={d.nombre}
+                      className="catalogo__foto"
+                      loading="lazy"
+                      decoding="async"
+                      width={400}
+                      height={220}
+                    />
+                  ) : (
+                    <div className="catalogo__imagen" style={{ background: colorPorSemilla(d.temporadaEvento) }} aria-hidden="true">
+                      <span className="catalogo__icono">{iconoPorTemporada(d.temporadaEvento)}</span>
+                    </div>
+                  )}
                   <h3 style={{ fontSize: "1rem" }}>{d.nombre}</h3>
                   <p className="catalogo__meta">{d.tipoDisfraz} · Temporada: {d.temporadaEvento}</p>
                   <p className="catalogo__precio">S/ {d.precioAlquiler} / día</p>

@@ -140,7 +140,7 @@ export default function MisAlquileres() {
                 </p>
 
                 <div className="alquiler-card__footer">
-                  <span className="alquiler-card__total">S/ {Number(a.montoTotal).toFixed(2)}/día</span>
+                  <span className="alquiler-card__total">S/ {Number(a.montoTotal).toFixed(2)} total</span>
                   {pestana === "ACTIVO" && (
                     <button type="button" className="btn btn--primary" onClick={() => setDevolviendo(a)}>
                       Devolver

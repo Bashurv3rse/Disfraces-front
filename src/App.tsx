@@ -12,8 +12,7 @@ const Registro = lazy(() => import("./pages/auth/Registro"));
 const Catalogo = lazy(() => import("./pages/catalogo/Catalogo"));
 const MisAlquileres = lazy(() => import("./pages/alquileres/MisAlquileres"));
 const Dashboard = lazy(() => import("./pages/admin/Dashboard"));
-const Devoluciones = lazy(() => import("./pages/admin/Devoluciones"));
-const Reportes = lazy(() => import("./pages/admin/Reportes"));
+const Devoluciones = lazy(() => import("./pages/admin/Devoluciones"));  
 const Proveedores = lazy(() => import("./pages/admin/Proveedores"));
 const InventarioFisico = lazy(() => import("./pages/admin/InventarioFisico"));
 const PagoExitoso = lazy(() => import("./pages/pago/PagoExitoso"));
@@ -44,10 +43,6 @@ export default function App() {
                 <Route
                   path="/admin/devoluciones"
                   element={<ProtectedRoute rolesPermitidos={["ADMINISTRADOR"]}><Devoluciones /></ProtectedRoute>}
-                />
-                <Route
-                  path="/admin/reportes"
-                  element={<ProtectedRoute rolesPermitidos={["ADMINISTRADOR"]}><Reportes /></ProtectedRoute>}
                 />
                 <Route
                   path="/admin/proveedores"

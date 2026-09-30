@@ -14,8 +14,8 @@ export function MainLayout() {
   const navigate = useNavigate();
   const esAdmin = usuario?.rol === "ADMINISTRADOR";
 
-  function handleLogout() {
-    cerrarSesion();
+  async function handleLogout() {
+    await cerrarSesion();
     navigate("/login");
   }
 
@@ -31,7 +31,6 @@ export function MainLayout() {
             <>
               <Link to="/admin/dashboard">Dashboard</Link>
               <Link to="/admin/devoluciones">Devoluciones</Link>
-              <Link to="/admin/reportes">Reportes</Link>
               <Link to="/admin/proveedores">Proveedores</Link>
               <Link to="/admin/inventario">Inventario Físico</Link>
             </>

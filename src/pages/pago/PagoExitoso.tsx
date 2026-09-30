@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useSearchParams, Link } from "react-router-dom";
+import { useCarrito } from "../../lib/CarritoContext";
 import { api } from "../../lib/api";
 import "./pago-exitoso.css";
 
@@ -9,6 +10,7 @@ export default function PagoExitoso() {
   const [searchParams] = useSearchParams();
   const [estado, setEstado] = useState<Estado>("confirmando");
   const [mensaje, setMensaje] = useState<string | null>(null);
+  const { vaciarCarrito } = useCarrito();
 
   useEffect(() => {
     const sessionId = searchParams.get("session_id");
@@ -20,12 +22,15 @@ export default function PagoExitoso() {
 
     api
       .post("/pagos/confirmar", { sessionId })
-      .then(() => setEstado("exito"))
+      .then(() => {
+        vaciarCarrito();
+        setEstado("exito");
+      })
       .catch((err) => {
         setEstado("error");
         setMensaje(err.response?.data?.mensaje || "No se pudo confirmar el pago.");
       });
-  }, [searchParams]);
+  }, [searchParams, vaciarCarrito]);
 
   return (
     <div className="card pago-exitoso">

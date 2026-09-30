@@ -4,17 +4,27 @@ import { useCarrito } from "../lib/CarritoContext";
 import { api } from "../lib/api";
 import "./carrito-drawer.css";
 
+function calcularDias(fechaInicio: string, fechaFin: string): number {
+  if (!fechaInicio || !fechaFin) return 1;
+  const msPorDia = 1000 * 60 * 60 * 24;
+  const dias = Math.round((new Date(fechaFin).getTime() - new Date(fechaInicio).getTime()) / msPorDia);
+  return Math.max(1, dias);
+}
+
 export function CarritoDrawer() {
-  const { items, quitarItem, vaciarCarrito, totalPorDia, abierto, cerrarCarrito } = useCarrito();
+  const { items, quitarItem, totalPorDia, abierto, cerrarCarrito } = useCarrito();
   const [fechaInicio, setFechaInicio] = useState("");
   const [fechaFin, setFechaFin] = useState("");
   const [evento, setEvento] = useState("");
-  const [redirigido, setRedirigido] = useState(false);
-  const [urlPago, setUrlPago] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [guardando, setGuardando] = useState(false);
 
   if (!abierto) return null;
+
+  const dias = calcularDias(fechaInicio, fechaFin);
+  const subtotal = totalPorDia * dias;
+  const garantia = subtotal * 0.25;
+  const total = subtotal + garantia;
 
   async function handlePagar(e: FormEvent) {
     e.preventDefault();
@@ -27,20 +37,16 @@ export function CarritoDrawer() {
         evento,
         disfraces: items.map((i) => i.disfrazFisicoId),
       });
-      window.open(data.url, "_blank");
-      setUrlPago(data.url);
-      setRedirigido(true);
-      vaciarCarrito();
+      // Redirige la misma pestaña (no abre una nueva) — Stripe te trae de
+      // vuelta a esta misma URL al terminar, así nunca quedan 2 pestañas.
+      window.location.href = data.url;
     } catch (err: any) {
       setError(err.response?.data?.mensaje || "No se pudo iniciar el pago");
-    } finally {
       setGuardando(false);
     }
   }
 
   function handleCerrar() {
-    setRedirigido(false);
-    setUrlPago(null);
     setError(null);
     setFechaInicio("");
     setFechaFin("");
@@ -56,19 +62,7 @@ export function CarritoDrawer() {
           <button type="button" className="carrito-drawer__cerrar" onClick={handleCerrar} aria-label="Cerrar carrito">×</button>
         </div>
 
-        {redirigido ? (
-          <div className="carrito-drawer__confirmado">
-            <p>Se abrió la pasarela de pago en una pestaña nueva. 💳</p>
-            <p style={{ fontSize: "0.85rem", color: "var(--text-muted)" }}>
-              Completa el pago ahí — tu alquiler se confirmará solo cuando el pago sea exitoso.
-            </p>
-            {urlPago && (
-              <a href={urlPago} target="_blank" rel="noopener noreferrer" className="btn btn--ghost" style={{ width: "100%" }}>
-                ¿No se abrió? Abrir la pasarela de pago
-              </a>
-            )}
-          </div>
-        ) : items.length === 0 ? (
+        {items.length === 0 ? (
           <p className="carrito-drawer__vacio">Tu carrito está vacío.</p>
         ) : (
           <form onSubmit={handlePagar}>
@@ -98,18 +92,22 @@ export function CarritoDrawer() {
 
             <div className="carrito-drawer__resumen">
               <div className="carrito-drawer__resumen-linea">
-                <span>Subtotal alquiler</span>
-                <span>S/ {totalPorDia.toFixed(2)}/día</span>
+                <span>Subtotal alquiler ({dias} día{dias > 1 ? "s" : ""})</span>
+                <span>S/ {subtotal.toFixed(2)}</span>
               </div>
               <div className="carrito-drawer__resumen-linea">
                 <span>Garantía (25%, reembolsable)</span>
-                <span>S/ {(totalPorDia * 0.25).toFixed(2)}</span>
+                <span>S/ {garantia.toFixed(2)}</span>
               </div>
               <div className="carrito-drawer__resumen-linea carrito-drawer__resumen-linea--total">
                 <span>Total a pagar</span>
-                <span>S/ {(totalPorDia * 1.25).toFixed(2)}</span>
+                <span>S/ {total.toFixed(2)}</span>
               </div>
-              <p className="carrito-drawer__resumen-nota">La garantía se devuelve completa si el disfraz vuelve en buen estado.</p>
+              <p className="carrito-drawer__resumen-nota">
+                {fechaInicio && fechaFin
+                  ? `${dias} día${dias > 1 ? "s" : ""} de alquiler. La garantía se devuelve completa si el disfraz vuelve en buen estado.`
+                  : "Elige las fechas para ver el total exacto. La garantía se devuelve completa si el disfraz vuelve en buen estado."}
+              </p>
             </div>
 
             <div className="field">
@@ -126,7 +124,7 @@ export function CarritoDrawer() {
             </div>
 
             <button type="submit" className="btn btn--primary" style={{ width: "100%" }} disabled={guardando}>
-              {guardando ? "Redirigiendo…" : `Pagar · S/ ${(totalPorDia * 1.25).toFixed(2)}`}
+              {guardando ? "Redirigiendo…" : `Pagar · S/ ${total.toFixed(2)}`}
             </button>
           </form>
         )}

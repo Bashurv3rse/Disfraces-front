@@ -1,5 +1,6 @@
 import { createContext, useContext, useState } from "react";
 import type { ReactNode } from "react";
+import { api } from "./api";
 
 interface Usuario {
   id: string;
@@ -11,7 +12,7 @@ interface Usuario {
 interface AuthContextValue {
   usuario: Usuario | null;
   guardarSesion: (usuario: Usuario, accessToken: string, refreshToken: string) => void;
-  cerrarSesion: () => void;
+  cerrarSesion: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null);
@@ -36,7 +37,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUsuario(usuario);
   }
 
-  function cerrarSesion() {
+  async function cerrarSesion() {
+    try {
+      // Revoca TODAS las sesiones del usuario en el servidor (todos los
+      // dispositivos), no solo esta pestaña.
+      await api.post("/auth/logout");
+    } catch {
+      // Si falla (ej. el token ya expiró), igual limpiamos la sesión local.
+    }
     localStorage.removeItem("usuario");
     localStorage.removeItem("accessToken");
     localStorage.removeItem("refreshToken");
