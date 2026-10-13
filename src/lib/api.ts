@@ -1,30 +1,46 @@
 import axios from "axios";
 
-const BASE_URL = "https://disfraces-api.m-andresb04.workers.dev/api";
+const BASE_URL = "http://localhost:3000/api";
 
-export const api = axios.create({ baseURL: BASE_URL });
+// El access token vive únicamente en memoria.
+// Al recargar/cerrar la página desaparece.
+let accessTokenEnMemoria: string | null = null;
+
+export function establecerAccessToken(token: string | null) {
+  accessTokenEnMemoria = token;
+}
+
+export const api = axios.create({
+  baseURL: BASE_URL,
+  // Permite que el navegador envíe la cookie HttpOnly del refresh token.
+  withCredentials: true,
+});
 
 api.interceptors.request.use((config) => {
-  const token = localStorage.getItem("accessToken");
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
+  if (accessTokenEnMemoria) {
+    config.headers.Authorization = `Bearer ${accessTokenEnMemoria}`;
   }
+
   return config;
 });
 
 let refrescoEnCurso: Promise<string | null> | null = null;
 
 async function intentarRefrescar(): Promise<string | null> {
-  const refreshToken = localStorage.getItem("refreshToken");
-  if (!refreshToken) return null;
-
   try {
-    // Cliente "limpio" (sin interceptores) para no entrar en loop si esta
-    // misma petición también devolviera 401.
-    const { data } = await axios.post(`${BASE_URL}/auth/refrescar`, { refreshToken });
-    localStorage.setItem("accessToken", data.accessToken);
+    // No enviamos refreshToken en el body.
+    // El navegador lo envía automáticamente mediante la cookie HttpOnly.
+    const { data } = await axios.post(
+      `${BASE_URL}/auth/refrescar`,
+      {},
+      { withCredentials: true }
+    );
+
+    establecerAccessToken(data.accessToken);
+
     return data.accessToken as string;
   } catch {
+    establecerAccessToken(null);
     return null;
   }
 }
@@ -34,11 +50,19 @@ api.interceptors.response.use(
   async (error) => {
     const peticionOriginal = error.config;
 
-    if (error.response?.status === 401 && !peticionOriginal._reintentado) {
+    const esPeticionDeRefresh =
+      peticionOriginal?.url?.includes("/auth/refrescar");
+
+    if (
+      error.response?.status === 401 &&
+      peticionOriginal &&
+      !peticionOriginal._reintentado &&
+      !esPeticionDeRefresh
+    ) {
       peticionOriginal._reintentado = true;
 
-      // Si ya hay un refresh en curso (varias peticiones fallaron a la vez),
-      // todas esperan el mismo resultado en vez de refrescar por triplicado.
+      // Si varias peticiones reciben 401 simultáneamente,
+      // todas esperan el mismo refresh.
       if (!refrescoEnCurso) {
         refrescoEnCurso = intentarRefrescar().finally(() => {
           refrescoEnCurso = null;
@@ -46,16 +70,19 @@ api.interceptors.response.use(
       }
 
       const nuevoToken = await refrescoEnCurso;
+
       if (nuevoToken) {
         peticionOriginal.headers.Authorization = `Bearer ${nuevoToken}`;
         return api(peticionOriginal);
       }
 
-      // El refresh también falló (expiró o es inválido): cerrar sesión de verdad.
+      // Si tampoco podemos renovar la sesión, volvemos al login.
       localStorage.removeItem("usuario");
-      localStorage.removeItem("accessToken");
-      localStorage.removeItem("refreshToken");
-      window.location.href = "/login";
+      establecerAccessToken(null);
+
+      if (window.location.pathname !== "/login") {
+        window.location.href = "/login";
+      }
     }
 
     return Promise.reject(error);

@@ -1,6 +1,6 @@
-import { createContext, useContext, useState } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 import type { ReactNode } from "react";
-import { api } from "./api";
+import { api, establecerAccessToken } from "./api";
 
 interface Usuario {
   id: string;
@@ -11,7 +11,8 @@ interface Usuario {
 
 interface AuthContextValue {
   usuario: Usuario | null;
-  guardarSesion: (usuario: Usuario, accessToken: string, refreshToken: string) => void;
+  cargandoSesion: boolean;
+  guardarSesion: (usuario: Usuario, accessToken: string) => void;
   cerrarSesion: () => Promise<void>;
 }
 
@@ -19,7 +20,9 @@ const AuthContext = createContext<AuthContextValue | null>(null);
 
 function leerUsuarioGuardado(): Usuario | null {
   const crudo = localStorage.getItem("usuario");
+
   if (!crudo) return null;
+
   try {
     return JSON.parse(crudo);
   } catch {
@@ -29,30 +32,64 @@ function leerUsuarioGuardado(): Usuario | null {
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [usuario, setUsuario] = useState<Usuario | null>(leerUsuarioGuardado);
+  const [cargandoSesion, setCargandoSesion] = useState(true);
 
-  function guardarSesion(usuario: Usuario, accessToken: string, refreshToken: string) {
+  useEffect(() => {
+    async function restaurarSesion() {
+      try {
+        // La cookie HttpOnly se envía automáticamente.
+        // Si sigue siendo válida, obtenemos un nuevo access token.
+        const { data } = await api.post("/auth/refrescar");
+
+        establecerAccessToken(data.accessToken);
+
+        // Comprobamos además quién es el usuario autenticado.
+        const respuestaPerfil = await api.get("/auth/perfil");
+
+        const usuarioActual = respuestaPerfil.data.usuario as Usuario;
+
+        localStorage.setItem("usuario", JSON.stringify(usuarioActual));
+        setUsuario(usuarioActual);
+      } catch {
+        establecerAccessToken(null);
+        localStorage.removeItem("usuario");
+        setUsuario(null);
+      } finally {
+        setCargandoSesion(false);
+      }
+    }
+
+    restaurarSesion();
+  }, []);
+
+  function guardarSesion(usuario: Usuario, accessToken: string) {
     localStorage.setItem("usuario", JSON.stringify(usuario));
-    localStorage.setItem("accessToken", accessToken);
-    localStorage.setItem("refreshToken", refreshToken);
+    establecerAccessToken(accessToken);
     setUsuario(usuario);
   }
 
   async function cerrarSesion() {
     try {
-      // Revoca TODAS las sesiones del usuario en el servidor (todos los
-      // dispositivos), no solo esta pestaña.
+      // Revoca las sesiones en el servidor y elimina la cookie HttpOnly.
       await api.post("/auth/logout");
     } catch {
-      // Si falla (ej. el token ya expiró), igual limpiamos la sesión local.
+      // Aunque falle el backend, limpiamos el estado local.
     }
+
+    establecerAccessToken(null);
     localStorage.removeItem("usuario");
-    localStorage.removeItem("accessToken");
-    localStorage.removeItem("refreshToken");
     setUsuario(null);
   }
 
   return (
-    <AuthContext.Provider value={{ usuario, guardarSesion, cerrarSesion }}>
+    <AuthContext.Provider
+      value={{
+        usuario,
+        cargandoSesion,
+        guardarSesion,
+        cerrarSesion,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );
@@ -60,6 +97,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
 export function useAuth() {
   const ctx = useContext(AuthContext);
-  if (!ctx) throw new Error("useAuth debe usarse dentro de AuthProvider");
+
+  if (!ctx) {
+    throw new Error("useAuth debe usarse dentro de AuthProvider");
+  }
+
   return ctx;
 }

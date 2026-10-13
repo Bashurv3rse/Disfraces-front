@@ -32,7 +32,7 @@ export default function Registro() {
     setCargando(true);
     try {
       const { data } = await api.post("/auth/registro", { nombre, email, password, telefono, direccion });
-      guardarSesion(data.usuario, data.accessToken, data.refreshToken);
+      guardarSesion(data.usuario, data.accessToken);
       navigate("/catalogo");
     } catch (err: any) {
       if (err.response?.data?.errores) {
