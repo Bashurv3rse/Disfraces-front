@@ -1,6 +1,8 @@
 import axios from "axios";
 
-const BASE_URL = "http://localhost:3000/api";
+const BASE_URL = import.meta.env.DEV
+  ? "http://localhost:3000/api"
+  : "https://disfraces-api.m-andresb04.workers.dev/api";
 
 // El access token vive únicamente en memoria.
 // Al recargar/cerrar la página desaparece.
