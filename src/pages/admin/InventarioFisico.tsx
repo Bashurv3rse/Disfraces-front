@@ -80,6 +80,7 @@ interface Candidato {
   mismaFamilia: boolean;
   mismaTalla: boolean;
   mismoColor: boolean;
+  esAlmacen: boolean;
 }
 
 const ETIQUETA_ESTADO: Record<EstadoDisfraz, string> = {
@@ -380,12 +381,19 @@ export default function InventarioFisico() {
           </div>
         ))}
 
-        <Link
-          to="/admin/disfraces/nuevo"
-          className="btn btn--primary inventario__nuevo"
-        >
-          + Nuevo disfraz
-        </Link>
+        <div className="inventario__acciones-top">
+          <Link to="/admin/almacen" className="btn btn--ghost">
+            Almacén
+          </Link>
+
+          <Link to="/admin/recetas" className="btn btn--ghost">
+            Recetas
+          </Link>
+
+          <Link to="/admin/disfraces/nuevo" className="btn btn--primary">
+            + Nuevo disfraz
+          </Link>
+        </div>
       </div>
 
       {error && (
@@ -578,9 +586,9 @@ export default function InventarioFisico() {
             </div>
 
             <p className="inventario-modal__nota">
-              Solo se ofrecen prendas del mismo tipo de disfraces compatibles que no estén en lavado. Al confirmar el préstamo, la prenda se moverá
-              físicamente a <strong>{detalle.nombre}</strong>; el disfraz donante quedará incompleto y no podrá alquilarse
-              hasta que se resuelva.
+              Se ofrecen repuestos del almacén con el mismo nombre y prendas del mismo tipo de disfraces compatibles que no estén
+              en lavado. Al confirmar, la prenda se mueve físicamente a <strong>{detalle.nombre}</strong>. Si viene de otro
+              disfraz, ese disfraz quedará incompleto hasta que se resuelva; si viene del almacén, no afecta a ninguno.
             </p>
 
             {errorModal && (
@@ -593,9 +601,11 @@ export default function InventarioFisico() {
               <p role="status" className="inventario-modal__contador">Buscando candidatos…</p>
             ) : candidatos.length === 0 ? (
               <p className="inventario-modal__vacio">
+                {`No hay repuestos de «${prendaBuscada.nombre}» en el almacén`}
                 {detalle.grupoCompatibilidad
-                  ? `No hay prendas disponibles de este tipo en disfraces compatibles (grupo "${detalle.grupoCompatibilidad.replace(/-/g, " ")}"). Los disfraces en lavado no prestan piezas hasta terminar su ciclo.`
-                  : "Este disfraz no intercambia piezas con otros disfraces."}
+                  ? ` ni prendas disponibles de este tipo en disfraces compatibles (grupo «${detalle.grupoCompatibilidad.replace(/-/g, " ")}»).`
+                  : "."}
+                {" Los disfraces en lavado no prestan piezas. Puedes agregar repuestos desde la pantalla Almacén."}
               </p>
             ) : (
               <p className="inventario-modal__contador">{candidatos.length} candidato(s) encontrado(s):</p>
@@ -612,6 +622,7 @@ export default function InventarioFisico() {
                         {c.mismaFamilia && <span className="inventario-pill inventario-pill--match">Misma familia</span>}
                         {c.mismaTalla && <span className="inventario-pill inventario-pill--match">Misma talla</span>}
                         {c.mismoColor && <span className="inventario-pill inventario-pill--match">Mismo color</span>}
+                        {c.esAlmacen && <span className="inventario-pill inventario-pill--match">Almacén</span>}
                         <span className="inventario-pill">{c.calidad}</span>
                       </div>
                       <strong>{c.nombre}</strong>
@@ -621,6 +632,10 @@ export default function InventarioFisico() {
                       {c.disfrazOrigenAlquilado ? (
                         <span className="inventario-pill inventario-pill--alerta">
                           ⚠ {c.disfrazOrigenNombre} está alquilado ahora
+                        </span>
+                      ) : c.esAlmacen ? (
+                        <span className="inventario-pill inventario-pill--match">
+                          Sale del almacén: no deja ningún disfraz incompleto
                         </span>
                       ) : (
                         <span className="inventario-pill inventario-pill--aviso">
