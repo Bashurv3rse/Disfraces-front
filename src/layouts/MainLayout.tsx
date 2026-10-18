@@ -32,6 +32,7 @@ export function MainLayout() {
               <Link to="/admin/dashboard">Dashboard</Link>
               <Link to="/admin/devoluciones">Devoluciones</Link>
               <Link to="/admin/proveedores">Proveedores</Link>
+              <Link to="/admin/usuarios">Usuarios</Link>
               <Link to="/admin/inventario">Inventario Físico</Link>
             </>
           ) : (
@@ -55,7 +56,9 @@ export function MainLayout() {
           )}
           {usuario ? (
             <>
-              <span className="layout__usuario">Hola, {usuario.nombre}</span>
+              <Link to="/perfil" className="layout__usuario" title="Mi perfil">
+                Hola, {usuario.nombre}
+              </Link>
               <button type="button" onClick={handleLogout} className="btn btn--ghost">
                 Cerrar sesión
               </button>

@@ -1,0 +1,74 @@
+.perfil {
+  max-width: 900px;
+  margin: 0 auto;
+}
+.perfil__subtitulo {
+  color: var(--text-muted);
+  margin-bottom: var(--space-5);
+}
+
+.perfil__grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-4);
+  align-items: start;
+}
+
+.perfil__card h2 {
+  font-size: 1.05rem;
+  margin-bottom: var(--space-1);
+}
+.perfil__card-desc {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  margin-bottom: var(--space-4);
+}
+
+.perfil__ayuda {
+  display: block;
+  margin-top: var(--space-1);
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+
+/* El correo no se edita: se ve distinto a un campo editable, sin perder contraste. */
+.perfil .field input[readonly] {
+  background: var(--surface-raised);
+  color: var(--text-muted);
+  cursor: not-allowed;
+}
+
+.perfil__meta {
+  display: flex;
+  gap: var(--space-5);
+  flex-wrap: wrap;
+  margin: var(--space-4) 0;
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--border);
+}
+.perfil__meta > div {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.perfil__meta-etiqueta {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--text-muted);
+}
+
+.perfil__exito {
+  background: rgba(60, 140, 93, 0.12);
+  color: #1f5c3a;
+  border-radius: var(--radius-sm);
+  padding: var(--space-2) var(--space-3);
+  font-size: 0.88rem;
+  margin: 0 0 var(--space-3);
+}
+
+@media (max-width: 800px) {
+  .perfil__grid {
+    grid-template-columns: 1fr;
+  }
+}
