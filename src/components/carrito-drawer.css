@@ -127,3 +127,98 @@
   color: var(--accent);
   font-size: 0.85rem;
 }
+
+.carrito-drawer__item-linea {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: var(--space-2);
+}
+.carrito-drawer__item-total {
+  font-weight: 700;
+  font-size: 0.9rem;
+}
+.carrito-drawer__tachado {
+  text-decoration: line-through;
+  color: var(--text-muted);
+  font-weight: 400;
+  font-size: 0.8rem;
+  margin-right: var(--space-2);
+}
+.carrito-drawer__oferta {
+  display: inline-block;
+  margin-top: var(--space-1);
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 1px var(--space-2);
+  border-radius: 999px;
+  background: rgba(60, 140, 93, 0.15);
+  color: #1f5c3a;
+}
+
+.carrito-drawer__hint {
+  display: block;
+  margin-top: var(--space-1);
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+
+/* --- Código de descuento --- */
+.carrito-drawer__codigo {
+  margin-bottom: var(--space-4);
+}
+.carrito-drawer__codigo > label {
+  display: block;
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin-bottom: var(--space-1);
+}
+.carrito-drawer__codigo-fila,
+.carrito-drawer__codigo-aplicado {
+  display: flex;
+  gap: var(--space-2);
+  align-items: center;
+}
+.carrito-drawer__codigo-fila input {
+  flex: 1;
+  min-width: 0;
+  text-transform: uppercase;
+}
+.carrito-drawer__codigo-chip {
+  font-family: var(--font-mono, monospace);
+  font-weight: 700;
+  font-size: 0.85rem;
+  letter-spacing: 0.04em;
+  padding: var(--space-1) var(--space-3);
+  border: 1px dashed var(--accent-2);
+  border-radius: var(--radius-sm);
+  background: rgba(47, 110, 98, 0.08);
+}
+.carrito-drawer__codigo-msg {
+  margin: var(--space-2) 0 0;
+  font-size: 0.82rem;
+}
+.carrito-drawer__codigo-msg--ok {
+  color: #1f5c3a;
+}
+.carrito-drawer__codigo-msg--info {
+  color: var(--text-muted);
+}
+.carrito-drawer__codigo-msg--error {
+  color: var(--danger);
+}
+
+/* --- Resumen con descuento --- */
+.carrito-drawer__resumen--calculando {
+  opacity: 0.55;
+  transition: opacity 0.15s;
+}
+.carrito-drawer__resumen-linea--descuento span:last-child {
+  color: #1f5c3a;
+  font-weight: 600;
+}
+.carrito-drawer__detalle-descuento {
+  margin: 0 0 var(--space-2);
+  font-size: 0.78rem;
+  color: #1f5c3a;
+}

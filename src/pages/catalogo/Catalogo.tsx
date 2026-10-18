@@ -4,6 +4,7 @@ import { api } from "../../lib/api";
 import { useAuth } from "../../lib/AuthContext";
 import { useCarrito } from "../../lib/CarritoContext";
 import { iconoPorTemporada, colorPorSemilla } from "../../lib/iconos";
+import { OfertasBanner } from "../../components/OfertasBanner";
 import "./catalogo.css";
 
 interface Prenda {
@@ -138,6 +139,7 @@ export default function Catalogo() {
       </aside>
 
       <section aria-label="Resultados del catálogo" className="catalogo__resultados">
+        <OfertasBanner />
         {cargando ? (
           <p role="status">Cargando disfraces…</p>
         ) : disfraces.length === 0 ? (

@@ -2,6 +2,7 @@ import { useEffect, useState, useCallback, useRef } from "react";
 import { api } from "../../lib/api";
 import { iconoPorTipo } from "../../lib/iconos";
 import "./inventario-fisico.css";
+import { Link } from "react-router-dom";
 
 type EstadoDisfraz = "DISPONIBLE" | "INCOMPLETO" | "ALQUILADO" | "EN_REPARACION" | "SUSPENDIDO";
 type FaseLavado = "LAVADO" | "PLANCHADO" | "EMPAQUETADO" | null;
@@ -370,11 +371,21 @@ export default function InventarioFisico() {
     <div>
       <div className="inventario__resumen">
         {(["DISPONIBLE", "INCOMPLETO", "ALQUILADO", "EN_REPARACION"] as EstadoDisfraz[]).map((e) => (
-          <div key={e} className={`inventario__resumen-pill inventario__resumen-pill--${e.toLowerCase()}`}>
+          <div
+            key={e}
+            className={`inventario__resumen-pill inventario__resumen-pill--${e.toLowerCase()}`}
+          >
             <span className="inventario__resumen-dot" />
             {ETIQUETA_ESTADO[e]} <strong>{conteos[e] || 0}</strong>
           </div>
         ))}
+
+        <Link
+          to="/admin/disfraces/nuevo"
+          className="btn btn--primary inventario__nuevo"
+        >
+          + Nuevo disfraz
+        </Link>
       </div>
 
       {error && (

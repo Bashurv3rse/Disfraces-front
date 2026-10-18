@@ -6,6 +6,7 @@ import { MainLayout } from "./layouts/MainLayout";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import { CarritoDrawer } from "./components/CarritoDrawer";
 import { ErrorBoundary } from "./components/ErrorBoundary";
+const CrearDisfraz = lazy(() => import("./pages/admin/CrearDisfraz"));
 
 const Login = lazy(() => import("./pages/auth/Login"));
 const Registro = lazy(() => import("./pages/auth/Registro"));
@@ -56,8 +57,12 @@ export default function App() {
                   element={<ProtectedRoute rolesPermitidos={["ADMINISTRADOR"]}><InventarioFisico /></ProtectedRoute>}
                 />
                 <Route
-                path="/admin/usuarios"
-                element={<ProtectedRoute rolesPermitidos={["ADMINISTRADOR"]}><Usuarios /></ProtectedRoute>}
+                  path="/admin/usuarios"
+                  element={<ProtectedRoute rolesPermitidos={["ADMINISTRADOR"]}><Usuarios /></ProtectedRoute>}
+                />
+                <Route
+                  path="/admin/disfraces/nuevo"
+                  element={<ProtectedRoute rolesPermitidos={["ADMINISTRADOR"]}><CrearDisfraz /></ProtectedRoute>}
                 />
               </Route>
             </Routes>

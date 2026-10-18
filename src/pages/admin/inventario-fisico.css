@@ -462,3 +462,8 @@
   background: var(--surface-raised);
   border-radius: var(--radius-sm);
 }
+
+.inventario__nuevo {
+  margin-left: auto;
+  align-self: center;
+}

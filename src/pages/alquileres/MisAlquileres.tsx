@@ -29,6 +29,8 @@ interface Alquiler {
   estado: "PENDIENTE" | "ACTIVO" | "FINALIZADO" | "CANCELADO";
   montoTotal: string;
   montoGarantia: string;
+  descuento: string;
+  detalleDescuento: string | null;
   disfraces: AlquilerDisfraz[];
 }
 
@@ -134,7 +136,12 @@ export default function MisAlquileres() {
                     </li>
                   ))}
                 </ul>
-
+                {Number(a.descuento) > 0 && (
+                  <p className="alquiler-card__descuento">
+                    Descuento aplicado: −S/ {Number(a.descuento).toFixed(2)}
+                    {a.detalleDescuento ? ` · ${a.detalleDescuento}` : ""}
+                  </p>
+                )}
                 <p className="alquiler-card__garantia">
                   Garantía (25%): S/ {Number(a.montoGarantia).toFixed(2)} — se devuelve si el disfraz vuelve en buen estado
                 </p>

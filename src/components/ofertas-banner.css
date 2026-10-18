@@ -1,0 +1,39 @@
+.ofertas {
+  background: rgba(47, 110, 98, 0.08);
+  border: 1px solid var(--accent-2);
+  border-radius: var(--radius-md);
+  padding: var(--space-3) var(--space-4);
+  margin-bottom: var(--space-4);
+}
+.ofertas__titulo {
+  font-size: 0.95rem;
+  margin-bottom: var(--space-2);
+}
+.ofertas__lista {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: var(--space-2) var(--space-4);
+  font-size: 0.85rem;
+}
+.ofertas__item {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-2);
+}
+.ofertas__porcentaje {
+  flex-shrink: 0;
+  font-weight: 700;
+  font-size: 0.8rem;
+  color: #fff;
+  background: var(--accent);
+  border-radius: 999px;
+  padding: 1px var(--space-2);
+}
+.ofertas__nota {
+  margin: var(--space-2) 0 0;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}

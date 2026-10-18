@@ -1,0 +1,121 @@
+.crear {
+  max-width: 860px;
+  margin: 0 auto;
+}
+.crear__subtitulo {
+  color: var(--text-muted);
+  margin-bottom: var(--space-4);
+  font-size: 0.9rem;
+}
+
+.crear__form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+.crear__grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-3) var(--space-4);
+}
+.crear__ayuda {
+  display: block;
+  margin-top: var(--space-1);
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+.crear__ayuda--alerta {
+  color: var(--danger);
+}
+.crear__errores {
+  margin: 0;
+  padding-left: var(--space-4);
+}
+.crear__preview {
+  display: block;
+  margin-top: var(--space-2);
+  width: 160px;
+  height: 100px;
+  object-fit: cover;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+}
+
+.crear__prendas {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: var(--space-3) var(--space-4) var(--space-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+.crear__prendas legend {
+  font-weight: 600;
+  font-size: 0.9rem;
+  padding: 0 var(--space-2);
+}
+.crear__prendas-cabecera,
+.crear__prenda {
+  display: grid;
+  grid-template-columns: 2fr 1.4fr 1fr 1fr 40px;
+  gap: var(--space-2);
+  align-items: center;
+}
+.crear__prendas-cabecera {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--text-muted);
+}
+.crear__prenda input,
+.crear__prenda select {
+  min-width: 0;
+  width: 100%;
+}
+.crear__prendas > .btn {
+  align-self: flex-start;
+  margin-top: var(--space-1);
+}
+
+.crear__acciones {
+  display: flex;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+
+.crear__exito h1 {
+  font-size: 1.3rem;
+  margin-bottom: var(--space-2);
+}
+.crear__exito h2 {
+  font-size: 1rem;
+  margin: var(--space-5) 0 var(--space-2);
+}
+.crear__nota {
+  font-size: 0.88rem;
+  color: var(--text-muted);
+  margin-bottom: var(--space-3);
+}
+.crear__codigo {
+  background: var(--surface-raised);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: var(--space-3);
+  font-size: 0.78rem;
+  overflow-x: auto;
+  margin: 0 0 var(--space-3);
+}
+
+@media (max-width: 760px) {
+  .crear__grid {
+    grid-template-columns: 1fr;
+  }
+  .crear__prendas-cabecera {
+    display: none;
+  }
+  .crear__prenda {
+    grid-template-columns: 1fr 1fr;
+    padding-bottom: var(--space-3);
+    border-bottom: 1px dashed var(--border);
+  }
+}

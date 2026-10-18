@@ -131,3 +131,11 @@
   font-size: 0.85rem;
   margin: var(--space-2) 0;
 }
+.alquiler-card__descuento {
+  background: rgba(60, 140, 93, 0.12);
+  color: #1f5c3a;
+  border-radius: var(--radius-sm);
+  padding: var(--space-2) var(--space-3);
+  font-size: 0.85rem;
+  margin: var(--space-2) 0;
+}
