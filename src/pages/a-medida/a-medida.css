@@ -1,0 +1,343 @@
+.amedida {
+  max-width: 900px;
+  margin: 0 auto;
+}
+.amedida__subtitulo {
+  color: var(--text-muted);
+  font-size: 0.92rem;
+  margin-bottom: var(--space-5);
+}
+.amedida h2 {
+  font-size: 1.1rem;
+}
+.amedida h3 {
+  font-size: 1rem;
+}
+
+.amedida__precio {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--accent);
+}
+.amedida__ayuda {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  margin: var(--space-2) 0 0;
+}
+.amedida__info {
+  font-size: 0.88rem;
+  color: var(--text-muted);
+  background: var(--surface-raised);
+  border-radius: var(--radius-sm);
+  padding: var(--space-2) var(--space-3);
+  margin: 0 0 var(--space-3);
+}
+.amedida__exito {
+  background: rgba(60, 140, 93, 0.12);
+  color: #1f5c3a;
+  border-radius: var(--radius-sm);
+  padding: var(--space-2) var(--space-3);
+  font-size: 0.9rem;
+  margin: 0 0 var(--space-4);
+}
+
+/* --- Buscador --- */
+.amedida__buscador {
+  margin-bottom: var(--space-4);
+}
+.amedida__buscador-fila {
+  display: flex;
+  gap: var(--space-2);
+}
+.amedida__buscador-fila input {
+  flex: 1;
+  min-width: 0;
+}
+.amedida__atajos {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+  margin: var(--space-3) 0 0;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+.amedida__atajo,
+.amedida__chip {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: var(--space-1) var(--space-3);
+  font-size: 0.85rem;
+  cursor: pointer;
+  color: var(--text);
+}
+.amedida__atajo:hover,
+.amedida__chip:hover {
+  border-color: var(--accent);
+}
+
+/* --- Resultado --- */
+.amedida__resultado {
+  margin-bottom: var(--space-5);
+}
+.amedida__mensaje {
+  font-size: 0.95rem;
+  margin: 0 0 var(--space-3);
+}
+.amedida__catalogo {
+  margin-bottom: var(--space-4);
+}
+.amedida__catalogo h2 {
+  font-size: 0.95rem;
+  margin-bottom: var(--space-2);
+}
+.amedida__catalogo ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+.amedida__catalogo-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3);
+}
+.amedida__catalogo-item img {
+  width: 64px;
+  height: 64px;
+  object-fit: cover;
+  border-radius: var(--radius-sm);
+}
+.amedida__catalogo-item > div {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.amedida__catalogo-item span {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.amedida__recetas {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: var(--space-3);
+}
+.amedida__receta {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+.amedida__receta--elegida {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 1px var(--accent);
+}
+.amedida__receta-cabecera {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: var(--space-2);
+}
+.amedida__receta-desc {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin: 0;
+}
+.amedida__receta-piezas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+  margin: 0;
+  flex: 1;
+}
+.amedida__chip-pieza {
+  font-size: 0.75rem;
+  padding: 1px var(--space-2);
+  border-radius: 999px;
+  background: var(--surface-raised);
+  border: 1px solid var(--border);
+}
+.amedida__chip-pieza--opcional {
+  border-style: dashed;
+  color: var(--text-muted);
+}
+
+/* --- Armado --- */
+.amedida__armado {
+  margin-bottom: var(--space-5);
+  scroll-margin-top: var(--space-4);
+}
+.amedida__armado-cabecera {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+  margin-bottom: var(--space-4);
+}
+.amedida__tallas {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-3) var(--space-4);
+  margin-bottom: var(--space-3);
+}
+
+.amedida__propuesta {
+  margin-bottom: var(--space-4);
+}
+.amedida__propuesta--calculando {
+  opacity: 0.55;
+  transition: opacity 0.15s;
+}
+.amedida__piezas {
+  list-style: none;
+  margin: var(--space-2) 0 var(--space-3);
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+.amedida__piezas li {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface-raised);
+}
+.amedida__piezas li > div {
+  display: flex;
+  flex-direction: column;
+}
+.amedida__piezas li span:not(.amedida__pieza-icono) {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+}
+.amedida__pieza-icono {
+  font-size: 1.2rem;
+  width: 32px;
+  text-align: center;
+}
+
+.amedida__faltante {
+  background: rgba(192, 57, 43, 0.08);
+  border: 1px solid var(--danger);
+  border-radius: var(--radius-sm);
+  padding: var(--space-2) var(--space-3);
+  font-size: 0.88rem;
+  margin-bottom: var(--space-2);
+}
+.amedida__chips {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+  margin-top: var(--space-2);
+  font-size: 0.82rem;
+}
+.amedida__sin-stock {
+  color: var(--danger);
+}
+.amedida__omitidas {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  margin: 0 0 var(--space-3);
+}
+
+.amedida__ajustes {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: var(--space-2) var(--space-3);
+}
+.amedida__ajustes summary {
+  cursor: pointer;
+  font-size: 0.88rem;
+  font-weight: 600;
+}
+.amedida__ajuste {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: center;
+  gap: var(--space-3);
+  margin-top: var(--space-2);
+  font-size: 0.88rem;
+}
+
+.amedida__reservar {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-1);
+}
+
+/* --- Reservas sin pagar --- */
+.amedida__reservas h2 {
+  margin-bottom: var(--space-3);
+}
+.amedida__reservas > ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: var(--space-3);
+}
+.amedida__reserva-cabecera {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: var(--space-2);
+}
+.amedida__reserva-cabecera > div {
+  display: flex;
+  flex-direction: column;
+}
+.amedida__reserva-cabecera span:not(.amedida__cuenta) {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+.amedida__cuenta {
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+  font-size: 0.85rem;
+  padding: 2px var(--space-2);
+  border-radius: 999px;
+  background: rgba(47, 110, 98, 0.12);
+}
+.amedida__cuenta--urgente {
+  background: rgba(192, 57, 43, 0.14);
+  color: var(--danger);
+}
+.amedida__reserva-piezas {
+  list-style: none;
+  margin: var(--space-2) 0;
+  padding: 0;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+.amedida__reserva-acciones {
+  display: flex;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+
+@media (max-width: 640px) {
+  .amedida__tallas {
+    grid-template-columns: 1fr;
+  }
+  .amedida__buscador-fila {
+    flex-direction: column;
+  }
+  .amedida__ajuste {
+    grid-template-columns: 1fr;
+  }
+}

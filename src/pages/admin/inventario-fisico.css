@@ -475,3 +475,8 @@
   gap: var(--space-2);
   flex-wrap: wrap;
 }
+
+.inventario__estado-badge--reservado {
+  background: rgba(232, 163, 61, 0.2);
+  color: #A5730F;
+}

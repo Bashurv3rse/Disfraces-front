@@ -23,7 +23,7 @@ interface Disfraz {
   temporadaEvento: string;
   precioAlquiler: string;
   imagenUrl: string | null;
-  estado: "DISPONIBLE" | "INCOMPLETO" | "ALQUILADO" | "EN_REPARACION" | "SUSPENDIDO";
+  estado: "DISPONIBLE" | "INCOMPLETO" | "ALQUILADO" | "RESERVADO" | "EN_REPARACION" | "SUSPENDIDO";
   prendasHogar: Prenda[];
 }
 
@@ -33,6 +33,7 @@ const ETIQUETA_ESTADO: Record<string, string> = {
   ALQUILADO: "Alquilado",
   EN_REPARACION: "En reparación",
   SUSPENDIDO: "No disponible por ahora",
+  RESERVADO: "Reservado",
 };
 
 export default function Catalogo() {
@@ -140,6 +141,9 @@ export default function Catalogo() {
 
       <section aria-label="Resultados del catálogo" className="catalogo__resultados">
         <OfertasBanner />
+        <p className="catalogo__a-medida">
+          ¿No encuentras tu disfraz? <Link to="/a-medida">Pídelo a medida</Link> y lo armamos con piezas de tu talla.
+        </p>
         {cargando ? (
           <p role="status">Cargando disfraces…</p>
         ) : disfraces.length === 0 ? (

@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { FormEvent, KeyboardEvent } from "react";
 import { useCarrito } from "../lib/CarritoContext";
+import type { ItemCarrito } from "../lib/CarritoContext";
+import { useAhora, formatearCuenta } from "../lib/useAhora";
 import { api } from "../lib/api";
 import "./carrito-drawer.css";
 
@@ -52,7 +54,7 @@ function mensajeDe(err: unknown, porDefecto: string): string {
 }
 
 // Fecha de hoy en la zona horaria del navegador (toISOString usaría UTC y, de noche en
-// Lima, ya mostraría "mañana").
+// Lima, ya mostraría «mañana»).
 function hoyLocal(): string {
   const d = new Date();
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
@@ -64,7 +66,7 @@ function nombreDia(fecha: string): string {
 }
 
 export function CarritoDrawer() {
-  const { items, quitarItem, totalPorDia, abierto, cerrarCarrito } = useCarrito();
+  const { items, quitarItem, totalPorDia, abierto, cerrarCarrito, aviso, descartarAviso } = useCarrito();
 
   const [fechaInicio, setFechaInicio] = useState("");
   const [fechaFin, setFechaFin] = useState("");
@@ -78,12 +80,15 @@ export function CarritoDrawer() {
 
   const [guardando, setGuardando] = useState(false);
   const [errorPago, setErrorPago] = useState<string | null>(null);
+  const [quitandoId, setQuitandoId] = useState<string | null>(null);
 
   // Número de la última consulta de precio: una respuesta lenta de una consulta anterior
   // nunca pisa a la más reciente.
   const solicitud = useRef(0);
 
   const rangoValido = !!fechaInicio && !!fechaFin && fechaFin >= fechaInicio;
+  const hayReservas = items.some((i) => i.venceMs != null);
+  const ahora = useAhora(abierto && hayReservas);
 
   useEffect(() => {
     if (!abierto) return;
@@ -130,7 +135,7 @@ export function CarritoDrawer() {
   if (!abierto) return null;
 
   const codigoInvalido = !!cotizacion?.codigo && !cotizacion.codigo.valido;
-  const puedePagar = !!cotizacion && !cotizando && !codigoInvalido && !guardando;
+  const puedePagar = !!cotizacion && !cotizando && !codigoInvalido && !guardando && !quitandoId;
 
   function cambiarInicio(valor: string) {
     setFechaInicio(valor);
@@ -157,9 +162,36 @@ export function CarritoDrawer() {
     }
   }
 
+  // Quitar un disfraz a medida cancela su reserva en el servidor: así las piezas vuelven
+  // al almacén y la reserva deja de contar para el límite de 3 sin pagar.
+  async function quitar(item: ItemCarrito) {
+    setErrorPago(null);
+    if (item.reservaId) {
+      setQuitandoId(item.disfrazFisicoId);
+      try {
+        await api.delete(`/a-medida/reservas/${item.reservaId}`);
+      } catch (err) {
+        const estado = (err as { response?: { status?: number } })?.response?.status;
+        if (estado !== 404) {
+          // 404 = la reserva ya no existía (venció o se canceló): da igual, se quita igual.
+          setErrorPago(mensajeDe(err, "No se pudo cancelar la reserva. Intenta de nuevo."));
+          setQuitandoId(null);
+          return;
+        }
+      }
+      setQuitandoId(null);
+    }
+    quitarItem(item.disfrazFisicoId);
+  }
+
   async function handlePagar(e: FormEvent) {
     e.preventDefault();
     if (!puedePagar) return;
+
+    if (items.some((i) => i.venceMs != null && i.venceMs <= Date.now())) {
+      setErrorPago("La reserva de un disfraz a medida acaba de vencer. Quítalo del carrito y vuelve a armarlo.");
+      return;
+    }
 
     setErrorPago(null);
     setGuardando(true);
@@ -203,6 +235,15 @@ export function CarritoDrawer() {
           </button>
         </div>
 
+        {aviso && (
+          <div className="carrito-drawer__aviso" role="status">
+            <span>{aviso}</span>
+            <button type="button" onClick={descartarAviso} aria-label="Cerrar aviso">
+              ×
+            </button>
+          </div>
+        )}
+
         {items.length === 0 ? (
           <p className="carrito-drawer__vacio">Tu carrito está vacío.</p>
         ) : (
@@ -216,6 +257,7 @@ export function CarritoDrawer() {
             <ul className="carrito-drawer__items">
               {items.map((item) => {
                 const linea = lineaPorId.get(item.disfrazFisicoId);
+                const restante = item.venceMs != null ? item.venceMs - ahora : null;
                 return (
                   <li key={item.disfrazFisicoId} className="carrito-drawer__item">
                     <div className="carrito-drawer__item-header">
@@ -226,12 +268,29 @@ export function CarritoDrawer() {
                       <button
                         type="button"
                         className="carrito-drawer__quitar"
-                        onClick={() => quitarItem(item.disfrazFisicoId)}
-                        aria-label={`Quitar ${item.nombre} del carrito`}
+                        disabled={quitandoId === item.disfrazFisicoId}
+                        onClick={() => quitar(item)}
+                        aria-label={
+                          item.reservaId
+                            ? `Quitar ${item.nombre} del carrito y cancelar su reserva`
+                            : `Quitar ${item.nombre} del carrito`
+                        }
                       >
                         ×
                       </button>
                     </div>
+
+                    {restante != null && (
+                      <div className="carrito-drawer__medida">
+                        <span className="carrito-drawer__medida-etiqueta">Reservado a tu nombre</span>
+                        <span
+                          className={`carrito-drawer__cuenta ${restante < 120_000 ? "carrito-drawer__cuenta--urgente" : ""}`}
+                          role="timer"
+                        >
+                          {formatearCuenta(restante)}
+                        </span>
+                      </div>
+                    )}
 
                     <div className="carrito-drawer__item-linea">
                       <span className="carrito-drawer__item-precio">S/{item.precioAlquiler}/día</span>
@@ -247,6 +306,20 @@ export function CarritoDrawer() {
                       <span className="carrito-drawer__oferta">
                         −{linea.promocion.porcentaje}% · {linea.promocion.nombre}
                       </span>
+                    )}
+
+                    {item.piezas && item.piezas.length > 0 && (
+                      <details className="carrito-drawer__piezas">
+                        <summary>Ver las {item.piezas.length} piezas</summary>
+                        <ul>
+                          {item.piezas.map((p, i) => (
+                            <li key={`${p.etiqueta}-${i}`}>
+                              <strong>{p.etiqueta}:</strong> {p.nombre} · {p.color} ·{" "}
+                              {p.talla === "única" ? "talla única" : `talla ${p.talla}`}
+                            </li>
+                          ))}
+                        </ul>
+                      </details>
                     )}
                   </li>
                 );
@@ -380,6 +453,13 @@ export function CarritoDrawer() {
                 </>
               )}
             </div>
+
+            {hayReservas && (
+              <p className="carrito-drawer__resumen-nota carrito-drawer__nota-reserva">
+                Las piezas de tu disfraz a medida están apartadas solo por el tiempo que ves arriba. Si no terminas el pago a
+                tiempo, vuelven al almacén.
+              </p>
+            )}
 
             <button type="submit" className="btn btn--primary" style={{ width: "100%" }} disabled={!puedePagar}>
               {guardando

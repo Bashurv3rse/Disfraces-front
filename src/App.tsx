@@ -21,6 +21,7 @@ const Perfil = lazy(() => import("./pages/perfil/Perfil"));
 const Usuarios = lazy(() => import("./pages/admin/Usuarios"));
 const Almacen = lazy(() => import("./pages/admin/Almacen"));
 const Recetas = lazy(() => import("./pages/admin/Recetas"));
+const DisfrazAMedida = lazy(() => import("./pages/a-medida/DisfrazAMedida"));
 
 function Inicio() {
   const { usuario } = useAuth();
@@ -41,6 +42,7 @@ export default function App() {
                 <Route path="/catalogo" element={<Catalogo />} />
                 <Route path="/mis-alquileres" element={<ProtectedRoute><MisAlquileres /></ProtectedRoute>} />
                 <Route path="/perfil" element={<ProtectedRoute><Perfil /></ProtectedRoute>} />
+                <Route path="/a-medida" element={<ProtectedRoute><DisfrazAMedida /></ProtectedRoute>} />
                 <Route path="/pago-exitoso" element={<ProtectedRoute><PagoExitoso /></ProtectedRoute>} />
                 <Route
                   path="/admin/dashboard"

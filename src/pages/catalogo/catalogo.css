@@ -126,3 +126,9 @@
   margin-bottom: var(--space-2);
   background: var(--surface-raised);
 }
+
+.catalogo__a-medida {
+  font-size: 0.88rem;
+  color: var(--text-muted);
+  margin: 0 0 var(--space-4);
+}

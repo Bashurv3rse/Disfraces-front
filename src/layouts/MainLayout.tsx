@@ -38,6 +38,7 @@ export function MainLayout() {
           ) : (
             <>
               <Link to="/catalogo">Disfraces</Link>
+              {usuario && <Link to="/a-medida">A medida</Link>}
               {usuario && <Link to="/mis-alquileres">Mis alquileres</Link>}
             </>
           )}

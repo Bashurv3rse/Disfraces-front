@@ -4,7 +4,7 @@ import { iconoPorTipo } from "../../lib/iconos";
 import "./inventario-fisico.css";
 import { Link } from "react-router-dom";
 
-type EstadoDisfraz = "DISPONIBLE" | "INCOMPLETO" | "ALQUILADO" | "EN_REPARACION" | "SUSPENDIDO";
+type EstadoDisfraz = "DISPONIBLE" | "INCOMPLETO" | "ALQUILADO" | "RESERVADO" | "EN_REPARACION" | "SUSPENDIDO";
 type FaseLavado = "LAVADO" | "PLANCHADO" | "EMPAQUETADO" | null;
 type SituacionPrenda = "PRESENTE" | "REEMPLAZADA" | "FALTANTE" | "DANADA" | "PRESTADA";
 
@@ -89,6 +89,7 @@ const ETIQUETA_ESTADO: Record<EstadoDisfraz, string> = {
   ALQUILADO: "Alquilado",
   EN_REPARACION: "En reparación",
   SUSPENDIDO: "Suspendido",
+  RESERVADO: "Reservado",
 };
 
 const ETIQUETA_FASE: Record<string, string> = {
