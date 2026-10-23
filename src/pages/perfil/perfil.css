@@ -72,3 +72,19 @@
     grid-template-columns: 1fr;
   }
 }
+
+.perfil__card--ancha {
+  grid-column: 1 / -1;
+}
+.perfil__tallas {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-4);
+  max-width: 520px;
+}
+
+@media (max-width: 800px) {
+  .perfil__tallas {
+    grid-template-columns: 1fr;
+  }
+}

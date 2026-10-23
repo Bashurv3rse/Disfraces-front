@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import type { FormEvent } from "react";
 import { api, establecerAccessToken } from "../../lib/api";
 import { useAuth } from "../../lib/AuthContext";
+import { TALLAS_ROPA, TALLAS_CALZADO } from "../../lib/prendas";
 import "./perfil.css";
 
 interface PerfilCompleto {
@@ -10,6 +11,8 @@ interface PerfilCompleto {
   email: string;
   telefono: string;
   direccion: string;
+  tallaRopa: string | null;
+  tallaCalzado: string | null;
   rol: "CLIENTE" | "ADMINISTRADOR" | "PROVEEDOR";
   creadoEn: string;
 }
@@ -96,6 +99,14 @@ export default function Perfil() {
   const [errorPass, setErrorPass] = useState<string | null>(null);
   const [exitoPass, setExitoPass] = useState(false);
   const [guardandoPass, setGuardandoPass] = useState(false);
+  
+    // Tallas guardadas
+  const [tallaRopa, setTallaRopa] = useState("");
+  const [tallaCalzado, setTallaCalzado] = useState("");
+  const [guardadas, setGuardadas] = useState({ ropa: "", calzado: "" });
+  const [errorTallas, setErrorTallas] = useState<string | null>(null);
+  const [exitoTallas, setExitoTallas] = useState(false);
+  const [guardandoTallas, setGuardandoTallas] = useState(false);
 
   function cargarFormulario(p: PerfilCompleto) {
     setPerfil(p);
@@ -107,7 +118,14 @@ export default function Perfil() {
   useEffect(() => {
     api
       .get("/auth/perfil")
-      .then(({ data }) => cargarFormulario(data.usuario))
+      .then(({ data }) => {
+        cargarFormulario(data.usuario);
+        const ropa = data.usuario.tallaRopa ?? "";
+        const calzado = data.usuario.tallaCalzado ?? "";
+        setTallaRopa(ropa);
+        setTallaCalzado(calzado);
+        setGuardadas({ ropa, calzado });
+      })
       .catch(() => setErrorCarga("No se pudo cargar tu perfil. Intenta de nuevo."))
       .finally(() => setCargando(false));
   }, []);
@@ -115,6 +133,29 @@ export default function Perfil() {
   const hayCambios =
     !!perfil &&
     (nombre.trim() !== perfil.nombre.trim() || telefono.trim() !== perfil.telefono.trim() || direccion.trim() !== perfil.direccion.trim());
+
+  const hayCambiosTallas = tallaRopa !== guardadas.ropa || tallaCalzado !== guardadas.calzado;
+
+  async function handleGuardarTallas(e: FormEvent) {
+    e.preventDefault();
+    setErrorTallas(null);
+    setExitoTallas(false);
+    setGuardandoTallas(true);
+    try {
+      const { data } = await api.patch("/auth/perfil/tallas", { tallaRopa, tallaCalzado });
+      const ropa = data.usuario.tallaRopa ?? "";
+      const calzado = data.usuario.tallaCalzado ?? "";
+      setTallaRopa(ropa);
+      setTallaCalzado(calzado);
+      setGuardadas({ ropa, calzado });
+      setExitoTallas(true);
+    } catch (err) {
+      const resp = leerError(err);
+      setErrorTallas(Object.values(resp.errores ?? {})[0]?.[0] || resp.mensaje || "No se pudieron guardar tus tallas.");
+    } finally {
+      setGuardandoTallas(false);
+    }
+  }
 
   async function handleGuardarDatos(e: FormEvent) {
     e.preventDefault();
@@ -287,6 +328,54 @@ export default function Perfil() {
             disabled={guardandoPass || !passwordActual || !passwordNueva || !confirmar}
           >
             {guardandoPass ? "Cambiando…" : "Cambiar contraseña"}
+          </button>
+        </form>
+
+        <form className="card perfil__card perfil__card--ancha" onSubmit={handleGuardarTallas} noValidate>
+          <h2>Mis tallas</h2>
+          <p className="perfil__card-desc">
+            Se usan como valor inicial al armar un disfraz a medida, para que no las elijas cada vez. Siempre podrás
+            cambiarlas en ese momento.
+          </p>
+
+          {errorTallas && (
+            <div className="alert alert--danger" role="alert">
+              {errorTallas}
+            </div>
+          )}
+          {exitoTallas && (
+            <p className="perfil__exito" role="status">
+              Tallas guardadas.
+            </p>
+          )}
+
+          <div className="perfil__tallas">
+            <div className="field">
+              <label htmlFor="perfil-talla-ropa">Talla de ropa</label>
+              <select id="perfil-talla-ropa" value={tallaRopa} onChange={(e) => setTallaRopa(e.target.value)}>
+                <option value="">Sin indicar</option>
+                {TALLAS_ROPA.map((t) => (
+                  <option key={t} value={t}>
+                    {t}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="field">
+              <label htmlFor="perfil-talla-calzado">Talla de calzado</label>
+              <select id="perfil-talla-calzado" value={tallaCalzado} onChange={(e) => setTallaCalzado(e.target.value)}>
+                <option value="">Sin indicar</option>
+                {TALLAS_CALZADO.map((t) => (
+                  <option key={t} value={t}>
+                    {t}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+
+          <button type="submit" className="btn btn--primary" disabled={guardandoTallas || !hayCambiosTallas}>
+            {guardandoTallas ? "Guardando…" : "Guardar tallas"}
           </button>
         </form>
       </div>

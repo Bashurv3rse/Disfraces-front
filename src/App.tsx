@@ -22,6 +22,7 @@ const Usuarios = lazy(() => import("./pages/admin/Usuarios"));
 const Almacen = lazy(() => import("./pages/admin/Almacen"));
 const Recetas = lazy(() => import("./pages/admin/Recetas"));
 const DisfrazAMedida = lazy(() => import("./pages/a-medida/DisfrazAMedida"));
+const PedidosAMedida = lazy(() => import("./pages/admin/PedidosAMedida"));
 
 function Inicio() {
   const { usuario } = useAuth();
@@ -75,6 +76,10 @@ export default function App() {
                 <Route
                   path="/admin/recetas"
                   element={<ProtectedRoute rolesPermitidos={["ADMINISTRADOR"]}><Recetas /></ProtectedRoute>}
+                />
+                <Route
+                  path="/admin/a-medida"
+                  element={<ProtectedRoute rolesPermitidos={["ADMINISTRADOR"]}><PedidosAMedida /></ProtectedRoute>}
                 />
               </Route>
             </Routes>

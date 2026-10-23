@@ -5,6 +5,7 @@ import { useAuth } from "../../lib/AuthContext";
 import { useCarrito } from "../../lib/CarritoContext";
 import { iconoPorTemporada, colorPorSemilla } from "../../lib/iconos";
 import { OfertasBanner } from "../../components/OfertasBanner";
+import { AjusteTallaModal } from "../../components/AjusteTallaModal";
 import "./catalogo.css";
 
 interface Prenda {
@@ -43,6 +44,7 @@ export default function Catalogo() {
   const [busqueda, setBusqueda] = useState("");
   const [temporadasFiltro, setTemporadasFiltro] = useState<Set<string>>(new Set());
   const [tiposFiltro, setTiposFiltro] = useState<Set<string>>(new Set());
+  const [ajustando, setAjustando] = useState<Disfraz | null>(null);
   const [cargando, setCargando] = useState(true);
   const { usuario } = useAuth();
   const { agregarItem, items } = useCarrito();
@@ -184,14 +186,24 @@ export default function Catalogo() {
                   </ul>
 
                   {usuario ? (
-                    <button
-                      type="button"
-                      className="btn btn--primary"
-                      disabled={!disponible || enCarrito}
-                      onClick={() => handleAgregar(d)}
-                    >
-                      {enCarrito ? "En el carrito" : "Agregar al carrito"}
-                    </button>
+                    <>
+                      <button
+                        type="button"
+                        className="btn btn--primary"
+                        disabled={!disponible || enCarrito}
+                        onClick={() => handleAgregar(d)}
+                      >
+                        {enCarrito ? "En el carrito" : "Agregar al carrito"}
+                      </button>
+                      <button
+                        type="button"
+                        className="btn btn--ghost"
+                        disabled={!disponible || enCarrito}
+                        onClick={() => setAjustando(d)}
+                      >
+                        Ajustar a mi talla
+                      </button>
+                    </>
                   ) : (
                     <Link to="/login" className="btn btn--ghost">Inicia sesión para alquilar</Link>
                   )}
@@ -201,6 +213,15 @@ export default function Catalogo() {
           </ul>
         )}
       </section>
+      {ajustando && (
+        <AjusteTallaModal
+          disfrazId={ajustando.id}
+          nombre={ajustando.nombre}
+          tipoDisfraz={ajustando.tipoDisfraz}
+          onCerrar={() => setAjustando(null)}
+          onReservado={cargar}
+        />
+      )}
     </div>
   );
 }

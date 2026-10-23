@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { FormEvent } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { api } from "../../lib/api";
 import { TIPOS_PRENDA, etiquetaTipo } from "../../lib/prendas";
 import "./recetas.css";
@@ -48,6 +48,9 @@ function mensajesDe(err: unknown): string[] {
 
 export default function Recetas() {
   const contador = useRef(0);
+  const location = useLocation();
+  const navigate = useNavigate();
+  const prellenar = (location.state as { prellenar?: { nombre: string; palabrasClave: string } } | null)?.prellenar;
   const nuevoHueco = (datos: Partial<HuecoForm> = {}): HuecoForm => ({
     clave: ++contador.current,
     etiqueta: "",
@@ -89,6 +92,17 @@ export default function Recetas() {
   useEffect(() => {
     cargar();
   }, [cargar]);
+
+    // Llegada desde «Pedidos sin receta»: se abre el formulario con el nombre y la palabra clave ya escritos.
+  useEffect(() => {
+    if (!prellenar) return;
+    setEditandoId(null);
+    setNombre(prellenar.nombre);
+    setPalabras(prellenar.palabrasClave);
+    setFormAbierto(true);
+    // Se limpia el estado de la navegación para que recargar la página no vuelva a abrir el formulario.
+    navigate(location.pathname, { replace: true, state: null });
+  }, []);
 
   function limpiarFormulario() {
     setEditandoId(null);
@@ -161,13 +175,12 @@ export default function Recetas() {
 
     setGuardando(true);
     try {
-      if (editandoId) {
-        await api.put(`/recetas/${editandoId}`, cuerpo);
-        setAviso(`Receta «${cuerpo.nombre}» actualizada.`);
-      } else {
-        await api.post("/recetas", cuerpo);
-        setAviso(`Receta «${cuerpo.nombre}» creada.`);
-      }
+      const { data } = editandoId
+        ? await api.put<{ peticionesVinculadas?: number }>(`/recetas/${editandoId}`, cuerpo)
+        : await api.post<{ peticionesVinculadas?: number }>("/recetas", cuerpo);
+      const vinculadas = data.peticionesVinculadas ?? 0;
+      const base = `Receta «${cuerpo.nombre}» ${editandoId ? "actualizada" : "creada"}.`;
+      setAviso(vinculadas > 0 ? `${base} ${vinculadas} pedido(s) de clientes quedaron atendidos con esta receta.` : base);
       cerrarFormulario();
       await cargar();
     } catch (err) {

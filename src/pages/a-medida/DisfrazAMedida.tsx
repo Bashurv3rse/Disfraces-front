@@ -187,12 +187,36 @@ export default function DisfrazAMedida() {
   const [cancelandoId, setCancelandoId] = useState<string | null>(null);
   const [errorReservas, setErrorReservas] = useState<string | null>(null);
 
+  const [tallasPerfil, setTallasPerfil] = useState<{ ropa: string; calzado: string } | null>(null);
+  const [guardandoTallas, setGuardandoTallas] = useState(false);
+  const [avisoTallas, setAvisoTallas] = useState<string | null>(null);
+
   const seccionArmado = useRef<HTMLElement | null>(null);
   const solicitud = useRef(0);
 
   const ahora = useAhora(reservas.length > 0);
   const reservasVisibles = reservas.filter((r) => r.venceMs > ahora);
   const limiteAlcanzado = reservasVisibles.length >= MAX_RESERVAS;
+
+  const puedeGuardarTallas =
+    !!tallasPerfil && ((!!ropa && ropa !== tallasPerfil.ropa) || (!!calzado && calzado !== tallasPerfil.calzado));
+
+  async function guardarTallasEnPerfil() {
+    setGuardandoTallas(true);
+    setAvisoTallas(null);
+    try {
+      const { data } = await api.patch<{ usuario: { tallaRopa: string | null; tallaCalzado: string | null } }>(
+        "/auth/perfil/tallas",
+        { tallaRopa: ropa || undefined, tallaCalzado: calzado || undefined }
+      );
+      setTallasPerfil({ ropa: data.usuario.tallaRopa ?? "", calzado: data.usuario.tallaCalzado ?? "" });
+      setAvisoTallas("Tallas guardadas en tu perfil.");
+    } catch (err) {
+      setAvisoTallas(mensajeDe(err, "No se pudieron guardar tus tallas."));
+    } finally {
+      setGuardandoTallas(false);
+    }
+  }
 
   // Cada tipo de talla se pide solo si algún hueco de ese tipo no tiene un ajuste propio.
   const necesitaRopa = receta?.piezas.some((p) => p.categoriaTalla === "ROPA" && !ajustes[p.id]) ?? false;
@@ -204,9 +228,7 @@ export default function DisfrazAMedida() {
     try {
       const { data } = await api.get<ReservaServidor[]>("/a-medida/reservas");
       const base = Date.now();
-      setReservas(
-        data.filter((r) => r.tipo === "A_MEDIDA").map((r) => ({ ...r, venceMs: base + r.segundosRestantes * 1000 }))
-      );
+      setReservas(data.map((r) => ({ ...r, venceMs: base + r.segundosRestantes * 1000 })));
       setErrorReservas(null);
     } catch (err) {
       setErrorReservas(mensajeDe(err, "No se pudieron cargar tus reservas."));
@@ -222,6 +244,21 @@ export default function DisfrazAMedida() {
       });
     cargarReservas();
   }, [cargarReservas]);
+
+    // Tallas guardadas en el perfil: se usan como valor inicial (sin pisar lo que ya se haya elegido).
+  useEffect(() => {
+    api
+      .get<{ usuario: { tallaRopa: string | null; tallaCalzado: string | null } }>("/auth/perfil")
+      .then(({ data }) => {
+        const guardadas = { ropa: data.usuario.tallaRopa ?? "", calzado: data.usuario.tallaCalzado ?? "" };
+        setTallasPerfil(guardadas);
+        setRopa((actual) => actual || guardadas.ropa);
+        setCalzado((actual) => actual || guardadas.calzado);
+      })
+      .catch(() => {
+        // Sin tallas guardadas: se eligen a mano, como siempre.
+      });
+  }, []);
 
   // Al elegir una receta, la pantalla baja hasta el armado (sin animación si el usuario la desactivó).
   useEffect(() => {
@@ -499,6 +536,18 @@ export default function DisfrazAMedida() {
                 </select>
               </div>
             )}
+            {puedeGuardarTallas && (
+              <p className="amedida__ayuda">
+                <button type="button" className="amedida__atajo" disabled={guardandoTallas} onClick={guardarTallasEnPerfil}>
+                  {guardandoTallas ? "Guardando…" : "Guardar estas tallas en mi perfil"}
+                </button>
+              </p>
+            )}
+            {avisoTallas && (
+              <p className="amedida__info" role="status">
+                {avisoTallas}
+              </p>
+            )}
             {receta.pideTallaCalzado && (
               <div className="field">
                 <label htmlFor="am-calzado">Tu talla de calzado</label>
@@ -646,7 +695,9 @@ export default function DisfrazAMedida() {
                   <div className="amedida__reserva-cabecera">
                     <div>
                       <strong>{r.disfraz.nombre}</strong>
-                      <span>S/ {r.disfraz.precioDia.toFixed(2)} / día</span>
+                      <span>
+                        S/ {r.disfraz.precioDia.toFixed(2)} / día{r.tipo === "AJUSTE_TALLA" ? " · Ajuste de talla" : ""}
+                      </span>
                     </div>
                     <span
                       className={`amedida__cuenta ${restante < 120_000 ? "amedida__cuenta--urgente" : ""}`}

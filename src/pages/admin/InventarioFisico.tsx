@@ -36,8 +36,9 @@ interface PrendaDetalle {
   calidad: string;
   estado: "DISPONIBLE" | "DANADA" | "FALTANTE";
   situacion: SituacionPrenda;
-  prestadaA: { id: string; nombre: string } | null;
+  prestadaA: { id: string; nombre: string; aMedida: boolean } | null;
   reemplazo: PrendaAjena | null;
+  apartada: boolean;
 }
 
 interface PrestamoRecibido {
@@ -52,6 +53,7 @@ interface PrestamoRecibido {
   reemplazaA: string | null;
   sobrante: boolean;
   puedeDevolverse: boolean;
+  apartada: boolean;
 }
 
 interface DetalleInventario {
@@ -170,7 +172,8 @@ function TarjetaPrenda({ prenda: p, bloqueado, procesando, onMarcar, onBuscarRee
 
       {situacion === "PRESTADA" && p.prestadaA && (
         <p className="inventario__prenda-nota">
-          Esta prenda está en <strong>{p.prestadaA.nombre}</strong>.{" "}
+          Esta prenda está en <strong>{p.prestadaA.nombre}</strong>
+          {p.prestadaA.aMedida ? " (disfraz a medida: vuelve sola cuando se desarme)." : "."}{" "}
           {p.reemplazo ? (
             <>
               Este disfraz usa <strong>{p.reemplazo.nombre}</strong> (de {p.reemplazo.origenNombre}) en su lugar.
@@ -180,8 +183,13 @@ function TarjetaPrenda({ prenda: p, bloqueado, procesando, onMarcar, onBuscarRee
           )}
         </p>
       )}
+      {p.apartada && (
+        <p className="inventario__prenda-nota">
+          Apartada por una reserva (ajuste de talla o disfraz a medida): vuelve sola a su lugar cuando termine.
+        </p>
+      )}
 
-      {!bloqueado && (
+      {!bloqueado && !p.apartada && (
         <div className="inventario__prenda-acciones">
           {situacion === "PRESENTE" && (
             <button type="button" className="btn btn--ghost" disabled={procesando} onClick={() => onMarcar("FALTANTE")}>
@@ -199,8 +207,14 @@ function TarjetaPrenda({ prenda: p, bloqueado, procesando, onMarcar, onBuscarRee
             <button
               type="button"
               className="btn btn--ghost"
-              disabled={procesando || p.estado !== "DISPONIBLE"}
-              title={p.estado !== "DISPONIBLE" ? "Solo se puede recuperar una prenda en buen estado" : undefined}
+              disabled={procesando || p.estado !== "DISPONIBLE" || !!p.prestadaA?.aMedida}
+              title={
+                p.prestadaA?.aMedida
+                  ? "Está en un disfraz a medida: vuelve sola al terminar su lavado"
+                  : p.estado !== "DISPONIBLE"
+                  ? "Solo se puede recuperar una prenda en buen estado"
+                  : undefined
+              }
               onClick={onRecuperar}
             >
               Recuperar prenda
@@ -386,7 +400,11 @@ export default function InventarioFisico() {
           <Link to="/admin/almacen" className="btn btn--ghost">
             Almacén
           </Link>
-
+          
+          <Link to="/admin/a-medida" className="btn btn--ghost">
+            A medida
+          </Link>
+          
           <Link to="/admin/recetas" className="btn btn--ghost">
             Recetas
           </Link>
@@ -534,7 +552,9 @@ export default function InventarioFisico() {
                               {r.color} · {r.talla} · de {r.origenNombre}
                             </span>
                             <span className="inventario__prenda-meta">
-                              {r.estado !== "DISPONIBLE"
+                              {r.apartada
+                                ? "Apartada por una reserva: vuelve sola a su lugar"
+                                : r.estado !== "DISPONIBLE"
                                 ? "No está en buen estado"
                                 : r.sobrante
                                 ? "Sobrante: ya no hace falta en este disfraz"
