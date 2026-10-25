@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 import { api } from "../../lib/api";
+import { Link } from "react-router-dom";
 import "./dashboard.css";
 
 const COLORES_DONA = ["#C0392B", "#2F6E62", "#A5301F", "#7A6E5C", "#24544A", "#D9B98A", "#8E5B4A", "#4C7A6E"];
@@ -48,11 +49,11 @@ export default function Dashboard() {
           <span className="dash-metrica__label">Ingresos del mes</span>
           <strong className="dash-metrica__valor">S/ {resumen ? resumen.ingresosMes.toFixed(2) : "…"}</strong>
         </div>
-        <div className="card dash-metrica">
-          <span className="dash-metrica__label">Devoluciones pendientes</span>
+        <Link to="/admin/devoluciones" className="card dash-metrica dash-metrica--enlace">
+          <span className="dash-metrica__label">Garantías por resolver</span>
           <strong className="dash-metrica__valor">{resumen?.devolucionesPendientes ?? "…"}</strong>
-          <span className="dash-metrica__nota">requieren revisión</span>
-        </div>
+          <span className="dash-metrica__nota">pendientes de inspección</span>
+        </Link>
       </div>
 
       <div className="dash-grid-2">

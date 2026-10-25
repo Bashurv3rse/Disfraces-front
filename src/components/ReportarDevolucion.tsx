@@ -100,7 +100,9 @@ export function ReportarDevolucion({ alquilerId, disfraces, onCerrar, onConfirma
           <h2>¿En qué estado devuelves cada prenda?</h2>
           <button type="button" className="reportar-modal__cerrar" onClick={onCerrar} aria-label="Cerrar">×</button>
         </div>
-
+        <p className="reportar-modal__desc">
+          Tu reporte queda registrado. Después la tienda revisa el disfraz y te confirma en «Mis alquileres» si se devuelve tu garantía.
+        </p>
         {error && <div className="alert alert--danger" role="alert">{error}</div>}
 
         <div className="reportar-modal__lista">

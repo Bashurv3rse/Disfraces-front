@@ -146,3 +146,12 @@
     grid-template-columns: 1fr;
   }
 }
+
+a.dash-metrica--enlace {
+  text-decoration: none;
+  color: inherit;
+}
+a.dash-metrica--enlace:hover,
+a.dash-metrica--enlace:focus-visible {
+  border-color: var(--accent);
+}

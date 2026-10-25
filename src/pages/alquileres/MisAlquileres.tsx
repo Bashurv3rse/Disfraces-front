@@ -32,11 +32,93 @@ interface Alquiler {
   descuento: string;
   detalleDescuento: string | null;
   disfraces: AlquilerDisfraz[];
+  devolucion: ComprobanteGarantia | null;
+}
+
+type EstadoPieza = "BUEN_ESTADO" | "DANADA" | "FALTANTE";
+
+interface ComprobanteGarantia {
+  fechaDevolucion: string;
+  garantiaEstado: "PENDIENTE" | "DEVUELTA" | "RETENIDA";
+  garantiaMonto: string | null;
+  garantiaMotivo: string | null;
+  garantiaReembolsoId: string | null;
+  garantiaResueltaEn: string | null;
+  prendas: {
+    estadoPrenda: EstadoPieza;
+    estadoAdmin: EstadoPieza | null;
+    observacion: string | null;
+    prenda: { id: string; nombre: string; color: string; talla: string };
+  }[];
 }
 
 function estaVencido(fechaFin: string): boolean {
   const hoyUTC = new Date(Date.UTC(new Date().getUTCFullYear(), new Date().getUTCMonth(), new Date().getUTCDate()));
   return new Date(fechaFin) < hoyUTC;
+}
+
+const ETIQUETA_PIEZA: Record<EstadoPieza, string> = {
+  BUEN_ESTADO: "Buen estado",
+  DANADA: "Dañada",
+  FALTANTE: "Faltante",
+};
+
+function GarantiaComprobante({ c, montoGarantia }: { c: ComprobanteGarantia; montoGarantia: string }) {
+  const monto = Number(c.garantiaMonto ?? montoGarantia).toFixed(2);
+  const fecha = c.garantiaResueltaEn ? new Date(c.garantiaResueltaEn).toLocaleDateString("es-PE") : null;
+
+  return (
+    <div className={`garantia garantia--${c.garantiaEstado.toLowerCase()}`}>
+      {c.garantiaEstado === "PENDIENTE" && (
+        <>
+          <strong>Tu garantía está en revisión</strong>
+          <p>La tienda está revisando el disfraz. Aquí te confirmaremos si se devuelve tu garantía de S/ {monto}.</p>
+        </>
+      )}
+
+      {c.garantiaEstado === "DEVUELTA" && (
+        <>
+          <strong>
+            Garantía devuelta: S/ {monto}
+            {fecha ? ` · ${fecha}` : ""}
+          </strong>
+          {c.garantiaReembolsoId ? (
+            <p>
+              El reembolso va a la tarjeta con la que pagaste. Comprobante: <code>{c.garantiaReembolsoId}</code>
+            </p>
+          ) : (
+            <p>Se te entregó en la tienda.</p>
+          )}
+        </>
+      )}
+
+      {c.garantiaEstado === "RETENIDA" && (
+        <>
+          <strong>
+            Garantía retenida: S/ {monto}
+            {fecha ? ` · ${fecha}` : ""}
+          </strong>
+          {c.garantiaMotivo && <p>Motivo: {c.garantiaMotivo}</p>}
+        </>
+      )}
+
+      <details className="garantia__prendas">
+        <summary>Ver la revisión de las prendas</summary>
+        <ul>
+          {c.prendas.map((p) => {
+            const final = p.estadoAdmin ?? p.estadoPrenda;
+            return (
+              <li key={p.prenda.id}>
+                {p.prenda.nombre} · {p.prenda.color} · {p.prenda.talla}: <strong>{ETIQUETA_PIEZA[final]}</strong>
+                {p.estadoAdmin && ` (tú reportaste: ${ETIQUETA_PIEZA[p.estadoPrenda].toLowerCase()})`}
+                {p.observacion && ` — «${p.observacion}»`}
+              </li>
+            );
+          })}
+        </ul>
+      </details>
+    </div>
+  );
 }
 
 export default function MisAlquileres() {
@@ -143,9 +225,9 @@ export default function MisAlquileres() {
                   </p>
                 )}
                 <p className="alquiler-card__garantia">
-                  Garantía (25%): S/ {Number(a.montoGarantia).toFixed(2)} — se devuelve si el disfraz vuelve en buen estado
+                  Garantía (25%): S/ {Number(a.montoGarantia).toFixed(2)} — se devuelve si la tienda confirma que el disfraz vuelve en buen estado
                 </p>
-
+                {a.devolucion && <GarantiaComprobante c={a.devolucion} montoGarantia={a.montoGarantia} />}
                 <div className="alquiler-card__footer">
                   <span className="alquiler-card__total">S/ {Number(a.montoTotal).toFixed(2)} total</span>
                   {pestana === "ACTIVO" && (
