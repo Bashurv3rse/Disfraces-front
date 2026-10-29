@@ -7,7 +7,32 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "oxlint",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "test:e2e:typecheck": "tsc -p tsconfig.e2e.json",
+    "test:e2e": "npm run test:e2e:typecheck && playwright test tests/e2e --output=test-results/e2e",
+    "test:e2e:catalogo": "playwright test tests/e2e/rtm-catalogo-carrito.spec.ts --workers=1 --output=test-results/e2e-catalogo",
+    "test:e2e:admin": "playwright test tests/e2e/rtm-dashboard-proveedores.spec.ts --workers=1 --output=test-results/e2e-admin",
+    "test:e2e:inventario": "playwright test tests/e2e/rtm-inventario.spec.ts --workers=1 --output=test-results/e2e-inventario",
+    "test:e2e:lavado": "playwright test tests/e2e/rtm-vencimientos-lavado.spec.ts --workers=1 --output=test-results/e2e-lavado",
+    "test:e2e:pagos": "playwright test tests/e2e/rtm-pagos.spec.ts --workers=1 --output=test-results/e2e-pagos",
+    "test:e2e:devoluciones": "playwright test tests/e2e/rtm-devoluciones.spec.ts --workers=1 --output=test-results/e2e-devoluciones",
+    "test:e2e:seguridad": "playwright test tests/e2e/rtm-seguridad-rutas.spec.ts --workers=1 --output=test-results/e2e-seguridad",
+    "test:e2e:busqueda": "npm run test:e2e:typecheck && playwright test tests/e2e/rtm-busqueda.spec.ts --workers=1 --output=test-results/e2e-busqueda",
+    "test:e2e:armado": "npm run test:e2e:typecheck && playwright test tests/e2e/rtm-armado.spec.ts --workers=1 --output=test-results/e2e-armado",
+    "test:e2e:reservas": "npm run test:e2e:typecheck && playwright test tests/e2e/rtm-reservas.spec.ts --workers=1 --output=test-results/e2e-reservas",
+    "test:e2e:recetas": "npm run test:e2e:typecheck && playwright test tests/e2e/rtm-pedidos-recetas.spec.ts --workers=1 --output=test-results/e2e-recetas",
+    "test:e2e:ajustes": "npm run test:e2e:typecheck && playwright test tests/e2e/rtm-perfil-ajustes.spec.ts --workers=1 --output=test-results/e2e-ajustes",
+    "test:e2e:cotizacion-garantias": "npm run test:e2e:typecheck && playwright test tests/e2e/rtm-cotizacion.spec.ts tests/e2e/rtm-garantias.spec.ts --workers=1 --output=test-results/e2e-cotizacion-garantias",
+    "test:e2e:ultimos": "npm run test:e2e:typecheck && playwright test tests/e2e/rtm-mis-garantias.spec.ts --workers=1 --output=test-results/e2e-ultimos/garantias && playwright test tests/e2e/rtm-crear-disfraz.spec.ts --workers=1 --output=test-results/e2e-ultimos/admin",
+    "test:e2e:reembolso-real": "npm run test:e2e:typecheck && playwright test --config playwright.stripe.config.ts --output=test-results/stripe-real",
+    "test:e2e:ui": "playwright test tests/e2e --ui",
+    "test:usabilidad": "playwright test tests/usabilidad --output=test-results/usabilidad",
+    "test:usabilidad:ui": "playwright test tests/usabilidad --ui",
+    "test:entorno": "playwright test --config playwright.entorno.config.ts --output=test-results/entorno",
+    "test:e2e:coexistencia": "npm run test:e2e:typecheck && playwright test --config playwright.coexistencia.config.ts --output=test-results/coexistencia"
   },
   "dependencies": {
     "axios": "^1.20.0",
@@ -17,12 +42,20 @@
     "recharts": "^3.10.1"
   },
   "devDependencies": {
+    "@axe-core/playwright": "^4.14.0",
+    "@playwright/test": "^1.64.1",
+    "@testing-library/jest-dom": "^7.0.1",
+    "@testing-library/react": "^16.3.3",
+    "@testing-library/user-event": "^14.6.8",
     "@types/node": "^24.13.3",
     "@types/react": "^19.2.18",
     "@types/react-dom": "^19.2.4",
     "@vitejs/plugin-react": "^6.1.0",
+    "@vitest/coverage-v8": "^5.0.5",
+    "jsdom": "^30.1.3",
     "oxlint": "^1.79.0",
     "typescript": "~6.0.2",
-    "vite": "^8.2.2"
+    "vite": "^8.2.2",
+    "vitest": "^5.0.5"
   }
 }

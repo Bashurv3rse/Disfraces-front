@@ -39,6 +39,7 @@ const ETIQUETA_ESTADO: Record<string, string> = {
 
 export default function Catalogo() {
   const [disfraces, setDisfraces] = useState<Disfraz[]>([]);
+  const [imagenesFallidas, setImagenesFallidas] = useState<Set<string>>(new Set());
   const [temporadasDisponibles, setTemporadasDisponibles] = useState<string[]>([]);
   const [tiposDisponibles, setTiposDisponibles] = useState<string[]>([]);
   const [busqueda, setBusqueda] = useState("");
@@ -157,9 +158,10 @@ export default function Catalogo() {
               const disponible = d.estado === "DISPONIBLE";
               return (
                 <li key={d.id} className="card catalogo__item">
-                  {d.imagenUrl ? (
+                  {d.imagenUrl && !imagenesFallidas.has(d.imagenUrl) ? (
                     <img
                       src={d.imagenUrl}
+                      onError={() => setImagenesFallidas(prev => new Set(prev).add(d.imagenUrl!))}
                       alt={d.nombre}
                       className="catalogo__foto"
                       loading="lazy"

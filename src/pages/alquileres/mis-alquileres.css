@@ -45,7 +45,7 @@
 }
 .estado-badge--activo {
   background: rgba(60, 140, 93, 0.15);
-  color: var(--success);
+  color: #1f5c3a;
 }
 
 .alquiler-card__fechas {

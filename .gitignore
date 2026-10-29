@@ -22,3 +22,18 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+coverage/
+
+# Variables de entorno
+.env
+.env.*
+!.env.example
+
+# Playwright
+playwright-report/
+playwright-report-*/
+test-results/
+test-results-*/
+
+# Reportes generados
+reports/

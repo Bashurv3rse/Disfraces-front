@@ -3,7 +3,7 @@
   margin: 0 auto;
 }
 .perfil__subtitulo {
-  color: var(--text-muted);
+  color: var(--text);
   margin-bottom: var(--space-5);
 }
 
