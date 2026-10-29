@@ -76,3 +76,10 @@
     padding: var(--space-5) var(--space-4);
   }
 }
+a.layout__usuario {
+  text-decoration: none;
+}
+a.layout__usuario:hover,
+a.layout__usuario:focus-visible {
+  text-decoration: underline;
+}

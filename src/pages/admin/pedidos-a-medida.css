@@ -1,0 +1,179 @@
+.pedidos {
+  max-width: 1000px;
+  margin: 0 auto;
+}
+.pedidos__volver {
+  display: inline-block;
+  font-size: 0.85rem;
+  margin-bottom: var(--space-3);
+}
+.pedidos__subtitulo {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  max-width: 640px;
+  margin-bottom: var(--space-4);
+}
+.pedidos__resumen {
+  display: flex;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+  margin-bottom: var(--space-4);
+}
+.pedidos__pill {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: var(--space-2) var(--space-4);
+  font-size: 0.85rem;
+}
+.pedidos__aviso {
+  background: rgba(60, 140, 93, 0.12);
+  color: #1f5c3a;
+  border-radius: var(--radius-sm);
+  padding: var(--space-2) var(--space-3);
+  font-size: 0.88rem;
+  margin: 0 0 var(--space-3);
+}
+.pedidos__nota {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  margin: 0 0 var(--space-3);
+}
+
+.pedidos__tabs {
+  display: flex;
+  gap: var(--space-2);
+  margin-bottom: var(--space-4);
+}
+.pedidos__tab {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  padding: var(--space-2) var(--space-4);
+  border-radius: var(--radius-sm);
+  font-weight: 600;
+  cursor: pointer;
+}
+.pedidos__tab--activa {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--text-on-accent);
+}
+
+.pedidos__lista {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: var(--space-4);
+}
+.pedidos__cabecera {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+.pedidos__item h2 {
+  font-size: 1.05rem;
+}
+.pedidos__cuenta {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--accent-2-strong);
+}
+.pedidos__meta {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  margin: var(--space-1) 0;
+}
+.pedidos__ejemplos {
+  display: flex;
+  gap: var(--space-1);
+  flex-wrap: wrap;
+  margin: var(--space-2) 0;
+}
+.pedidos__chip {
+  font-size: 0.72rem;
+  padding: 1px var(--space-2);
+  border-radius: 999px;
+  background: var(--surface-raised);
+  border: 1px solid var(--border);
+}
+.pedidos__acciones {
+  display: flex;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+  align-items: center;
+  margin-top: var(--space-3);
+}
+.pedidos__confirmar {
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.pedidos__estado {
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 2px var(--space-2);
+  border-radius: 999px;
+  white-space: nowrap;
+}
+.pedidos__estado--alquilado {
+  background: rgba(47, 110, 98, 0.2);
+  color: var(--accent-2-strong);
+}
+.pedidos__estado--lavado {
+  background: rgba(192, 57, 43, 0.1);
+  color: var(--danger);
+}
+.pedidos__estado--desarmar {
+  background: rgba(232, 163, 61, 0.2);
+  color: #a5730f;
+}
+.pedidos__lavado {
+  font-size: 0.82rem;
+  margin: var(--space-2) 0;
+}
+.pedidos__vencido {
+  background: rgba(192, 57, 43, 0.1);
+  color: var(--danger);
+  border-radius: var(--radius-sm);
+  padding: var(--space-2) var(--space-3);
+  font-size: 0.82rem;
+  margin: var(--space-2) 0;
+}
+.pedidos__piezas {
+  list-style: none;
+  margin: var(--space-3) 0 0;
+  padding: 0;
+  font-size: 0.85rem;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+.pedidos__piezas li {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-2);
+  padding: var(--space-1) 0;
+  border-bottom: 1px dashed var(--border);
+}
+.pedidos__origen {
+  color: var(--text-muted);
+  font-size: 0.78rem;
+}
+.pedidos__pieza-mala {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--danger);
+  white-space: nowrap;
+}
+
+.pedidos__tipo {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--text-muted);
+}

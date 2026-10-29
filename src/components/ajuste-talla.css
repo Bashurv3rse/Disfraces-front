@@ -1,0 +1,182 @@
+.ajuste-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(43, 33, 24, 0.45);
+  z-index: 60;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: var(--space-6) var(--space-4);
+  overflow-y: auto;
+}
+.ajuste-modal {
+  background: var(--surface);
+  border-radius: var(--radius-lg);
+  width: min(640px, 100%);
+  padding: var(--space-5);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+.ajuste-modal__cabecera {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+.ajuste-modal__cabecera h2 {
+  font-size: 1.15rem;
+}
+.ajuste-modal__etiqueta {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+.ajuste-modal__cerrar {
+  background: none;
+  border: none;
+  font-size: 1.6rem;
+  line-height: 1;
+  cursor: pointer;
+  color: var(--text-muted);
+}
+.ajuste-modal__texto {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  margin: 0;
+}
+.ajuste-modal__tallas {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-3) var(--space-4);
+}
+.ajuste-modal__info {
+  font-size: 0.88rem;
+  color: var(--text-muted);
+  background: var(--surface-raised);
+  border-radius: var(--radius-sm);
+  padding: var(--space-2) var(--space-3);
+  margin: 0;
+}
+.ajuste-modal__ok {
+  font-size: 0.88rem;
+  color: #1f5c3a;
+  background: rgba(60, 140, 93, 0.12);
+  border-radius: var(--radius-sm);
+  padding: var(--space-2) var(--space-3);
+  margin: var(--space-2) 0;
+}
+.ajuste-modal__acciones {
+  display: flex;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+.ajuste-modal__nota {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  margin: 0;
+}
+
+.ajuste-propuesta--calculando {
+  opacity: 0.55;
+  transition: opacity 0.15s;
+}
+.ajuste-piezas {
+  list-style: none;
+  margin: 0 0 var(--space-2);
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+.ajuste-piezas li {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface-raised);
+}
+.ajuste-piezas li > div {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+.ajuste-piezas li span:not(.ajuste-piezas__icono) {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+}
+.ajuste-piezas__icono {
+  font-size: 1.2rem;
+  width: 32px;
+  text-align: center;
+}
+.ajuste-piezas__cambia {
+  border-color: var(--accent-2);
+  background: rgba(47, 110, 98, 0.08);
+}
+.ajuste-piezas__tag {
+  font-style: normal;
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 1px var(--space-2);
+  border-radius: 999px;
+  background: rgba(47, 110, 98, 0.18);
+  color: var(--accent-2-strong);
+}
+
+.ajuste-faltante {
+  background: rgba(192, 57, 43, 0.08);
+  border: 1px solid var(--danger);
+  border-radius: var(--radius-sm);
+  padding: var(--space-2) var(--space-3);
+  font-size: 0.88rem;
+  margin-bottom: var(--space-2);
+}
+.ajuste-faltante__chips {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+  margin-top: var(--space-2);
+  font-size: 0.82rem;
+}
+.ajuste-chip {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: var(--space-1) var(--space-3);
+  font-size: 0.85rem;
+  cursor: pointer;
+  color: var(--text);
+}
+.ajuste-chip:hover {
+  border-color: var(--accent);
+}
+
+.ajuste-ajustes {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: var(--space-2) var(--space-3);
+}
+.ajuste-ajustes summary {
+  cursor: pointer;
+  font-size: 0.88rem;
+  font-weight: 600;
+}
+.ajuste-ajustes__fila {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: center;
+  gap: var(--space-3);
+  margin-top: var(--space-2);
+  font-size: 0.88rem;
+}
+
+@media (max-width: 640px) {
+  .ajuste-modal__tallas,
+  .ajuste-ajustes__fila {
+    grid-template-columns: 1fr;
+  }
+}

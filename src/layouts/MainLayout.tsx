@@ -14,8 +14,8 @@ export function MainLayout() {
   const navigate = useNavigate();
   const esAdmin = usuario?.rol === "ADMINISTRADOR";
 
-  function handleLogout() {
-    cerrarSesion();
+  async function handleLogout() {
+    await cerrarSesion();
     navigate("/login");
   }
 
@@ -31,16 +31,14 @@ export function MainLayout() {
             <>
               <Link to="/admin/dashboard">Dashboard</Link>
               <Link to="/admin/devoluciones">Devoluciones</Link>
-              <Link to="/admin/reportes">Reportes</Link>
               <Link to="/admin/proveedores">Proveedores</Link>
-              <Link to="/admin/stock">Stock</Link>
-              <Link to="/conjuntos/nuevo">Crear conjunto</Link>
+              <Link to="/admin/usuarios">Usuarios</Link>
+              <Link to="/admin/inventario">Inventario Físico</Link>
             </>
           ) : (
             <>
-              <Link to="/catalogo">Catálogo</Link>
-              <Link to="/conjuntos">Conjuntos</Link>
-              {usuario && <Link to="/conjuntos/nuevo">Armar conjunto</Link>}
+              <Link to="/catalogo">Disfraces</Link>
+              {usuario && <Link to="/a-medida">A medida</Link>}
               {usuario && <Link to="/mis-alquileres">Mis alquileres</Link>}
             </>
           )}
@@ -59,7 +57,9 @@ export function MainLayout() {
           )}
           {usuario ? (
             <>
-              <span className="layout__usuario">Hola, {usuario.nombre}</span>
+              <Link to="/perfil" className="layout__usuario" title="Mi perfil">
+                Hola, {usuario.nombre}
+              </Link>
               <button type="button" onClick={handleLogout} className="btn btn--ghost">
                 Cerrar sesión
               </button>

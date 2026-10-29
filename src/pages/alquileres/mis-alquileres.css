@@ -45,7 +45,7 @@
 }
 .estado-badge--activo {
   background: rgba(60, 140, 93, 0.15);
-  color: var(--success);
+  color: #1f5c3a;
 }
 
 .alquiler-card__fechas {
@@ -118,4 +118,63 @@
 .alquiler-card__devolver-botones {
   display: flex;
   gap: var(--space-2);
+}
+
+.alquiler-card--vencido {
+  border: 1px solid var(--danger);
+}
+.alquiler-card__vencido-aviso {
+  background: rgba(192, 57, 43, 0.1);
+  color: var(--danger);
+  border-radius: var(--radius-sm);
+  padding: var(--space-2) var(--space-3);
+  font-size: 0.85rem;
+  margin: var(--space-2) 0;
+}
+.alquiler-card__descuento {
+  background: rgba(60, 140, 93, 0.12);
+  color: #1f5c3a;
+  border-radius: var(--radius-sm);
+  padding: var(--space-2) var(--space-3);
+  font-size: 0.85rem;
+  margin: var(--space-2) 0;
+}
+
+.garantia {
+  border-radius: var(--radius-sm);
+  padding: var(--space-3);
+  margin: 0 0 var(--space-3);
+  font-size: 0.85rem;
+}
+.garantia p {
+  margin: var(--space-1) 0 0;
+}
+.garantia code {
+  font-size: 0.8rem;
+  overflow-wrap: anywhere;
+}
+.garantia--pendiente {
+  background: rgba(232, 163, 61, 0.15);
+  border: 1px solid #a5730f;
+}
+.garantia--devuelta {
+  background: rgba(60, 140, 93, 0.1);
+  border: 1px solid var(--success);
+}
+.garantia--retenida {
+  background: rgba(192, 57, 43, 0.08);
+  border: 1px solid var(--danger);
+}
+.garantia__prendas {
+  margin-top: var(--space-2);
+}
+.garantia__prendas summary {
+  cursor: pointer;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+.garantia__prendas ul {
+  margin: var(--space-2) 0 0;
+  padding-left: var(--space-4);
+  font-size: 0.8rem;
 }

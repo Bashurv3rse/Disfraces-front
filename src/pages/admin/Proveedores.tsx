@@ -4,8 +4,8 @@ import { api } from "../../lib/api";
 import { iconoPorTipo, colorPorSemilla } from "../../lib/iconos";
 import "./proveedores.css";
 
-interface PiezaAsociada {
-  pieza: { id: string; nombre: string; tipo: string; stock: number };
+interface PrendaAsociada {
+  prenda: { id: string; nombre: string; tipo: string };
 }
 
 interface Proveedor {
@@ -14,18 +14,17 @@ interface Proveedor {
   contacto: string;
   telefono: string | null;
   email: string | null;
-  piezas: PiezaAsociada[];
+  prendas: PrendaAsociada[];
 }
 
-interface PiezaCatalogo {
+interface PrendaCatalogo {
   id: string;
   nombre: string;
-  stock: number;
 }
 
 export default function Proveedores() {
   const [proveedores, setProveedores] = useState<Proveedor[]>([]);
-  const [catalogo, setCatalogo] = useState<PiezaCatalogo[]>([]);
+  const [prendasDisponibles, setPrendasDisponibles] = useState<PrendaCatalogo[]>([]);
   const [cargando, setCargando] = useState(true);
   const [mostrarForm, setMostrarForm] = useState(false);
   const [nombre, setNombre] = useState("");
@@ -35,14 +34,14 @@ export default function Proveedores() {
   const [error, setError] = useState<string | null>(null);
   const [guardando, setGuardando] = useState(false);
   const [expandidoId, setExpandidoId] = useState<string | null>(null);
-  const [piezaSeleccionada, setPiezaSeleccionada] = useState<Record<string, string>>({});
-  const [ajustandoId, setAjustandoId] = useState<string | null>(null);
+  const [prendaSeleccionada, setPrendaSeleccionada] = useState<Record<string, string>>({});
 
   async function cargar() {
     setCargando(true);
-    const [{ data: prov }, { data: cat }] = await Promise.all([api.get("/proveedores"), api.get("/catalogo")]);
+    const [{ data: prov }, { data: disfraces }] = await Promise.all([api.get("/proveedores"), api.get("/disfraces")]);
     setProveedores(prov);
-    setCatalogo(cat);
+    const todasLasPrendas = disfraces.flatMap((d: any) => d.prendasHogar);
+    setPrendasDisponibles(todasLasPrendas);
     setCargando(false);
   }
 
@@ -69,23 +68,12 @@ export default function Proveedores() {
     }
   }
 
-  async function asociarPieza(proveedorId: string) {
-    const piezaId = piezaSeleccionada[proveedorId];
-    if (!piezaId) return;
-    await api.post(`/proveedores/${proveedorId}/piezas`, { piezaId });
-    setPiezaSeleccionada((prev) => ({ ...prev, [proveedorId]: "" }));
+  async function asociarPrenda(proveedorId: string) {
+    const prendaId = prendaSeleccionada[proveedorId];
+    if (!prendaId) return;
+    await api.post(`/proveedores/${proveedorId}/piezas`, { prendaId });
+    setPrendaSeleccionada((prev) => ({ ...prev, [proveedorId]: "" }));
     cargar();
-  }
-
-  async function ajustarStock(piezaId: string, delta: number, stockActual: number) {
-    const nuevoStock = Math.max(0, stockActual + delta);
-    setAjustandoId(piezaId);
-    try {
-      await api.patch(`/catalogo/${piezaId}/stock`, { stock: nuevoStock });
-      await cargar();
-    } finally {
-      setAjustandoId(null);
-    }
   }
 
   return (
@@ -93,7 +81,7 @@ export default function Proveedores() {
       <div className="proveedores__header">
         <div>
           <h1 style={{ fontSize: "1.4rem", marginBottom: "var(--space-1)" }}>Proveedores</h1>
-          <p style={{ color: "var(--text-muted)" }}>Gestiona quién suministra cada pieza y su stock.</p>
+          <p style={{ color: "var(--text-muted)" }}>Gestiona quién suministra cada prenda.</p>
         </div>
         <button type="button" className="btn btn--primary" onClick={() => setMostrarForm((v) => !v)}>
           {mostrarForm ? "Cancelar" : "+ Nuevo proveedor"}
@@ -102,11 +90,7 @@ export default function Proveedores() {
 
       {mostrarForm && (
         <form onSubmit={handleSubmit} className="card proveedores__form">
-          {error && (
-            <div className="alert alert--danger" role="alert">
-              {error}
-            </div>
-          )}
+          {error && <div className="alert alert--danger" role="alert">{error}</div>}
           <div className="proveedores__form-grid">
             <div className="field">
               <label htmlFor="prov-nombre">Nombre</label>
@@ -139,8 +123,8 @@ export default function Proveedores() {
         <ul className="proveedores__lista">
           {proveedores.map((p) => {
             const expandido = expandidoId === p.id;
-            const piezasAsociadasIds = new Set(p.piezas.map((pp) => pp.pieza.id));
-            const piezasDisponibles = catalogo.filter((c) => !piezasAsociadasIds.has(c.id));
+            const asociadasIds = new Set(p.prendas.map((pp) => pp.prenda.id));
+            const disponibles = prendasDisponibles.filter((c) => !asociadasIds.has(c.id));
 
             return (
               <li key={p.id} className="card proveedores__item">
@@ -153,67 +137,37 @@ export default function Proveedores() {
                   className="btn btn--ghost proveedores__toggle"
                   onClick={() => setExpandidoId(expandido ? null : p.id)}
                 >
-                  {p.piezas.length} pieza(s) asociada(s) {expandido ? "▲" : "▼"}
+                  {p.prendas.length} prenda(s) asociada(s) {expandido ? "▲" : "▼"}
                 </button>
 
                 {expandido && (
                   <div className="proveedores__detalle">
-                    {p.piezas.length > 0 && (
+                    {p.prendas.length > 0 && (
                       <ul className="proveedores__piezas-lista">
-                        {p.piezas.map((pp) => (
-                          <li key={pp.pieza.id} className="proveedores__pieza">
-                            <span
-                              className="proveedores__pieza-icono"
-                              style={{ background: colorPorSemilla(pp.pieza.tipo) }}
-                              aria-hidden="true"
-                            >
-                              {iconoPorTipo(pp.pieza.tipo)}
+                        {p.prendas.map((pp) => (
+                          <li key={pp.prenda.id} className="proveedores__pieza">
+                            <span className="proveedores__pieza-icono" style={{ background: colorPorSemilla(pp.prenda.tipo) }} aria-hidden="true">
+                              {iconoPorTipo(pp.prenda.tipo)}
                             </span>
-                            <span className="proveedores__pieza-nombre">{pp.pieza.nombre}</span>
-                            <div className="proveedores__pieza-stock">
-                              <button
-                                type="button"
-                                className="btn btn--ghost"
-                                disabled={ajustandoId === pp.pieza.id || pp.pieza.stock === 0}
-                                onClick={() => ajustarStock(pp.pieza.id, -1, pp.pieza.stock)}
-                                aria-label={`Reducir stock de ${pp.pieza.nombre}`}
-                              >
-                                −
-                              </button>
-                              <span>{pp.pieza.stock}</span>
-                              <button
-                                type="button"
-                                className="btn btn--ghost"
-                                disabled={ajustandoId === pp.pieza.id}
-                                onClick={() => ajustarStock(pp.pieza.id, 1, pp.pieza.stock)}
-                                aria-label={`Aumentar stock de ${pp.pieza.nombre}`}
-                              >
-                                +
-                              </button>
-                            </div>
+                            <span className="proveedores__pieza-nombre">{pp.prenda.nombre}</span>
                           </li>
                         ))}
                       </ul>
                     )}
 
-                    {piezasDisponibles.length > 0 && (
+                    {disponibles.length > 0 && (
                       <div className="proveedores__asociar">
                         <select
-                          aria-label={`Asociar pieza a ${p.nombre}`}
-                          value={piezaSeleccionada[p.id] || ""}
-                          onChange={(e) => setPiezaSeleccionada((prev) => ({ ...prev, [p.id]: e.target.value }))}
+                          aria-label={`Asociar prenda a ${p.nombre}`}
+                          value={prendaSeleccionada[p.id] || ""}
+                          onChange={(e) => setPrendaSeleccionada((prev) => ({ ...prev, [p.id]: e.target.value }))}
                         >
-                          <option value="">Elige una pieza para asociar…</option>
-                          {piezasDisponibles.map((c) => (
+                          <option value="">Elige una prenda para asociar…</option>
+                          {disponibles.map((c) => (
                             <option key={c.id} value={c.id}>{c.nombre}</option>
                           ))}
                         </select>
-                        <button
-                          type="button"
-                          className="btn btn--primary"
-                          disabled={!piezaSeleccionada[p.id]}
-                          onClick={() => asociarPieza(p.id)}
-                        >
+                        <button type="button" className="btn btn--primary" disabled={!prendaSeleccionada[p.id]} onClick={() => asociarPrenda(p.id)}>
                           Asociar
                         </button>
                       </div>

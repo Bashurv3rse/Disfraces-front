@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 import { api } from "../../lib/api";
+import { Link } from "react-router-dom";
 import "./dashboard.css";
 
 const COLORES_DONA = ["#C0392B", "#2F6E62", "#A5301F", "#7A6E5C", "#24544A", "#D9B98A", "#8E5B4A", "#4C7A6E"];
@@ -48,11 +49,11 @@ export default function Dashboard() {
           <span className="dash-metrica__label">Ingresos del mes</span>
           <strong className="dash-metrica__valor">S/ {resumen ? resumen.ingresosMes.toFixed(2) : "…"}</strong>
         </div>
-        <div className="card dash-metrica">
-          <span className="dash-metrica__label">Devoluciones pendientes</span>
+        <Link to="/admin/devoluciones" className="card dash-metrica dash-metrica--enlace">
+          <span className="dash-metrica__label">Garantías por resolver</span>
           <strong className="dash-metrica__valor">{resumen?.devolucionesPendientes ?? "…"}</strong>
-          <span className="dash-metrica__nota">requieren revisión</span>
-        </div>
+          <span className="dash-metrica__nota">pendientes de inspección</span>
+        </Link>
       </div>
 
       <div className="dash-grid-2">
@@ -72,7 +73,7 @@ export default function Dashboard() {
         <div className="card">
           <h2 className="dash-card__titulo">Por categoría</h2>
           {!resumen || resumen.porCategoria.length === 0 ? (
-            <p style={{ color: "var(--text-muted)" }}>Aún no hay piezas alquiladas para mostrar.</p>
+            <p style={{ color: "var(--text-muted)" }}>Aún no hay disfraces alquilados para mostrar.</p>
           ) : (
             <>
               <ResponsiveContainer width="100%" height={220}>
@@ -135,23 +136,19 @@ export default function Dashboard() {
 
       <div className="card">
         <h2 className="dash-card__titulo">
-          <span aria-hidden="true">⚠️</span> Alertas de stock bajo
+          <span aria-hidden="true">⚠️</span> Disfraces incompletos
         </h2>
         {!resumen || resumen.alertasStock.length === 0 ? (
-          <p style={{ color: "var(--text-muted)" }}>No hay piezas con stock bajo por ahora.</p>
+          <p style={{ color: "var(--text-muted)" }}>Todos los disfraces están completos por ahora.</p>
         ) : (
-          <div className="dash-alertas">
+          <ul className="dash-incompletos">
             {resumen.alertasStock.map((a) => (
-              <div key={a.nombre} className="dash-alerta">
+              <li key={a.nombre} className="dash-incompletos__item">
                 <strong>{a.nombre}</strong>
-                <span className="dash-alerta__detalle">{a.detalle}</span>
-                <span className="dash-alerta__unidades">{a.unidades} und.</span>
-                <div className="dash-alerta__barra">
-                  <div className="dash-alerta__barra-fill" style={{ width: `${Math.min(a.unidades * 10, 100)}%` }} />
-                </div>
-              </div>
+                <span className="dash-incompletos__detalle">{a.detalle}</span>
+              </li>
             ))}
-          </div>
+          </ul>
         )}
       </div>
     </div>
