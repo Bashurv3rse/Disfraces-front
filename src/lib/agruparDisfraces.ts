@@ -100,13 +100,44 @@ export function ordenarTallas(tallas: string[], categoria: "ROPA" | "CALZADO"): 
     : unicas.sort((a, b) => (orden.indexOf(a) + 100 * +(orden.indexOf(a) < 0)) - (orden.indexOf(b) + 100 * +(orden.indexOf(b) < 0)));
 }
 
+// Unidades del grupo con las tallas elegidas. Puede haber varias copias idénticas: si una está
+// alquilada en unas fechas, otra puede estar libre.
+export function copiasPara(grupo: GrupoDisfraz, ropa: string | null, calzado: string | null): DisfrazCat[] {
+  return grupo.variantes.filter(
+    (v) => (ropa === null || tallaDe(v, "ROPA") === ropa) && (calzado === null || tallaDe(v, "CALZADO") === calzado)
+  );
+}
+
+// Copia que conviene ofrecer: una que no esté ya en el carrito, mejor si está libre hoy.
+export function elegirCopia(copias: DisfrazCat[], idsEnCarrito: string[] = []): DisfrazCat | null {
+  const sinCarrito = copias.filter((c) => !idsEnCarrito.includes(c.id));
+  const lista = sinCarrito.length > 0 ? sinCarrito : copias;
+  return lista.find(estaDisponible) ?? lista[0] ?? null;
+}
+
 // Variante del grupo que coincide con las tallas elegidas (null si no existe esa combinación).
 export function variantePara(grupo: GrupoDisfraz, ropa: string | null, calzado: string | null): DisfrazCat | null {
-  return (
-    grupo.variantes.find(
-      (v) => (ropa === null || tallaDe(v, "ROPA") === ropa) && (calzado === null || tallaDe(v, "CALZADO") === calzado)
-    ) ?? null
-  );
+  return elegirCopia(copiasPara(grupo, ropa, calzado));
+}
+
+type Tramo = { desde: string; hasta: string };
+
+// Días ocupados en TODAS las copias: solo en esos días no queda ninguna unidad para alquilar.
+export function ocupacionesComunes(copias: DisfrazCat[]): Tramo[] {
+  if (copias.length === 0) return [];
+  return copias
+    .map((c) => c.ocupaciones ?? [])
+    .reduce<Tramo[]>((comunes, siguiente) => {
+      const resultado: Tramo[] = [];
+      for (const a of comunes) {
+        for (const b of siguiente) {
+          const desde = a.desde > b.desde ? a.desde : b.desde;
+          const hasta = a.hasta < b.hasta ? a.hasta : b.hasta;
+          if (desde <= hasta) resultado.push({ desde, hasta });
+        }
+      }
+      return resultado;
+    }, copias[0].ocupaciones ?? []);
 }
 
 export function formatearDia(iso: string): string {

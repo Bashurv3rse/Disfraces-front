@@ -28,10 +28,12 @@ interface LineaCotizacion {
 
 interface DisponibilidadItem {
   id: string;
+  nombre: string;
   disponible: boolean;
   estado: string;
   bloqueo: string | null;
   ocupaciones: { desde: string; hasta: string }[];
+  reemplazo?: { id: string; nombre: string } | null;
 }
 
 const MOTIVO_NO_DISPONIBLE: Record<string, string> = {
@@ -123,7 +125,7 @@ function DisponibilidadEnCarrito({ info, inicio, fin }: { info: DisponibilidadIt
 }
 
 export function CarritoDrawer() {
-  const { items, quitarItem, totalPorDia, abierto, cerrarCarrito, aviso, descartarAviso } = useCarrito();
+  const { items, quitarItem, reemplazarItem, totalPorDia, abierto, cerrarCarrito, aviso, descartarAviso } = useCarrito();
 
   // Las fechas se eligen aquí y solo aquí: el catálogo no las usa.
   const [fechaInicio, setFechaInicio] = useState("");
@@ -142,6 +144,7 @@ export function CarritoDrawer() {
 
   // Disponibilidad de cada disfraz para las fechas elegidas (los a medida ya están reservados a tu nombre).
   const [disponibilidad, setDisponibilidad] = useState<Map<string, DisponibilidadItem>>(new Map());
+  const [avisosCambio, setAvisosCambio] = useState<string[]>([]);
 
   // Número de la última consulta de precio: una respuesta lenta de una consulta anterior
   // nunca pisa a la más reciente.
@@ -200,13 +203,26 @@ export function CarritoDrawer() {
       .get<DisponibilidadItem[]>("/disfraces/disponibilidad", {
         params: { ids: idsParaConsultar, inicio: fechaInicio, fin: fechaFin },
       })
-      .then(({ data }) => vigente && setDisponibilidad(new Map(data.map((d) => [d.id, d]))))
+      .then(({ data }) => {
+        if (!vigente) return;
+        // Si esa unidad está ocupada pero hay otra idéntica libre, se cambia sola.
+        const cambios = data.filter((d) => !d.disponible && d.reemplazo);
+        if (cambios.length > 0) {
+          cambios.forEach((d) => reemplazarItem(d.id, d.reemplazo!));
+          setAvisosCambio((prev) => [
+            ...prev,
+            ...cambios.map((d) => `${d.nombre} estaba ocupado en esas fechas: te asignamos otra unidad idéntica (${d.reemplazo!.nombre}).`),
+          ]);
+          return;
+        }
+        setDisponibilidad(new Map(data.map((d) => [d.id, d])));
+      })
       // Si la consulta falla no se bloquea nada: el servidor vuelve a validar al pagar.
       .catch(() => vigente && setDisponibilidad(new Map()));
     return () => {
       vigente = false;
     };
-  }, [abierto, rangoValido, idsParaConsultar, fechaInicio, fechaFin]);
+  }, [abierto, rangoValido, idsParaConsultar, fechaInicio, fechaFin, reemplazarItem]);
 
   const lineaPorId = useMemo(
     () => new Map(cotizacion?.lineas.map((l) => [l.disfrazId, l] as const) ?? []),
@@ -336,6 +352,16 @@ export function CarritoDrawer() {
               </div>
             )}
 
+            {avisosCambio.length > 0 && (
+              <div className="carrito-drawer__aviso" role="status">
+                {avisosCambio.map((a) => (
+                  <p key={a}>{a}</p>
+                ))}
+                <button type="button" className="btn btn--ghost" onClick={() => setAvisosCambio([])}>
+                  Entendido
+                </button>
+              </div>
+            )}
             <ul className="carrito-drawer__items">
               {items.map((item) => {
                 const linea = lineaPorId.get(item.disfrazFisicoId);

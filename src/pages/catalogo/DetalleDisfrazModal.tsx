@@ -4,7 +4,7 @@ import { api } from "../../lib/api";
 import { CalendarioDisponibilidad } from "../../components/CalendarioDisponibilidad";
 import { colorPorSemilla, iconoPorTemporada } from "../../lib/iconos";
 import { categoriaTalla, etiquetaTipo } from "../../lib/prendas";
-import { bloqueoDe, estaDisponible, opcionesDeTalla, tallaDe, variantePara } from "../../lib/agruparDisfraces";
+import { bloqueoDe, copiasPara, elegirCopia, estaDisponible, ocupacionesComunes, opcionesDeTalla, tallaDe } from "../../lib/agruparDisfraces";
 import type { DisfrazCat, GrupoDisfraz } from "../../lib/agruparDisfraces";
 
 const ETIQUETA_BLOQUEO: Record<string, string> = {
@@ -66,10 +66,14 @@ export function DetalleDisfrazModal({ grupo, sesionIniciada, idsEnCarrito, onAgr
     return () => document.removeEventListener("keydown", alPulsar);
   }, [onCerrar]);
 
-  const variante = variantePara(grupo, hayRopa ? ropa : null, tallasCalzado.length ? calzado : null);
-  const bloqueo = variante ? bloqueoDe(variante) : null;
-  const disponibleHoy = !!variante && estaDisponible(variante);
-  const enCarrito = !!variante && idsEnCarrito.includes(variante.id);
+  // Puede haber varias unidades idénticas (misma talla de ropa y calzado): se ofrece la que esté libre.
+  const copias = copiasPara(grupo, hayRopa ? ropa : null, tallasCalzado.length ? calzado : null);
+  const libres = copias.filter((c) => !bloqueoDe(c));
+  const sinCarrito = libres.filter((c) => !idsEnCarrito.includes(c.id));
+  const variante = elegirCopia(libres.length > 0 ? libres : copias, idsEnCarrito);
+  const bloqueo = copias.length > 0 && libres.length === 0 ? bloqueoDe(copias[0]) : null;
+  const disponibleHoy = libres.some(estaDisponible);
+  const enCarrito = libres.length > 0 && sinCarrito.length === 0;
   // Un alquiler en otras fechas no impide agregarlo: las fechas se eligen y validan en el carrito.
   const puedeAgregar = !!variante && !bloqueo && !enCarrito;
   const mostrada = variante ?? inicial;
@@ -141,13 +145,17 @@ export function DetalleDisfrazModal({ grupo, sesionIniciada, idsEnCarrito, onAgr
             <span className={`catalogo__estado ${estadoOk ? "catalogo__estado--ok" : "catalogo__estado--incompleto"}`}>{estadoTexto}</span>
           </p>
 
+          {copias.length > 1 && (
+            <p className="catalogo__ayuda">Hay {copias.length} unidades de esta combinación: el calendario marca un día en rojo solo si todas están ocupadas.</p>
+          )}
+
           {variante && (
             <>
               <button type="button" className="btn btn--ghost detalle__ver-disp" aria-expanded={verCalendario} onClick={() => setVerCalendario((v) => !v)}>
                 {verCalendario ? "Ocultar disponibilidad" : "Ver disponibilidad"}
               </button>
               {verCalendario && (
-                <CalendarioDisponibilidad key={variante.id} ocupaciones={variante.ocupaciones ?? []} bloqueo={bloqueo} />
+                <CalendarioDisponibilidad key={`${ropa}-${calzado}`} ocupaciones={ocupacionesComunes(libres)} bloqueo={bloqueo} />
               )}
             </>
           )}

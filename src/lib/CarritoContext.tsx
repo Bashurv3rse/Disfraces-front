@@ -27,6 +27,8 @@ interface CarritoContextValue {
   items: ItemCarrito[];
   agregarItem: (item: ItemCarrito) => void;
   quitarItem: (disfrazFisicoId: string) => void;
+  // Cambia una unidad por otra idéntica (misma talla) que sí está libre en las fechas elegidas.
+  reemplazarItem: (idActual: string, nuevo: { id: string; nombre: string }) => void;
   vaciarCarrito: () => void;
   totalPorDia: number;
   abierto: boolean;
@@ -51,6 +53,14 @@ export function CarritoProvider({ children }: { children: ReactNode }) {
 
   const quitarItem = useCallback((disfrazFisicoId: string) => {
     setItems((prev) => prev.filter((i) => i.disfrazFisicoId !== disfrazFisicoId));
+  }, []);
+
+  const reemplazarItem = useCallback((idActual: string, nuevo: { id: string; nombre: string }) => {
+    setItems((prev) =>
+      prev.some((i) => i.disfrazFisicoId === nuevo.id)
+        ? prev
+        : prev.map((i) => (i.disfrazFisicoId === idActual ? { ...i, disfrazFisicoId: nuevo.id, nombre: nuevo.nombre } : i))
+    );
   }, []);
 
   const vaciarCarrito = useCallback(() => setItems([]), []);
@@ -94,6 +104,7 @@ export function CarritoProvider({ children }: { children: ReactNode }) {
         items,
         agregarItem,
         quitarItem,
+        reemplazarItem,
         vaciarCarrito,
         totalPorDia,
         abierto,
