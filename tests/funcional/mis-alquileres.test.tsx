@@ -478,4 +478,13 @@ describe("Pruebas funcionales - Mis alquileres", () => {
       screen.queryByRole("dialog")
     ).not.toBeInTheDocument();
   });
+
+  it("PF-FE-80: muestra las fechas tal como se guardaron y las tallas del disfraz", async () => {
+    renderPagina();
+
+    // 20/10/2026 aunque el navegador esté en la zona horaria de Lima (UTC-5).
+    expect(await screen.findByText("20/10/2026")).toBeInTheDocument();
+    expect(screen.getByText("M")).toBeInTheDocument(); // talla de ropa de la camisa
+    expect(screen.getByText(/Talla de ropa:/)).toBeInTheDocument();
+  });
 });

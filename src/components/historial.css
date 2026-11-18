@@ -1,0 +1,11 @@
+.historial-disfraz { margin-top: var(--space-5); }
+.historial-disfraz__lista { list-style: none; margin: var(--space-3) 0 0; padding: 0 0 0 var(--space-3); border-left: 2px solid var(--border, #ddd); display: grid; gap: var(--space-3); }
+.historial-disfraz__evento p { margin: 2px 0 0; font-size: 0.85rem; }
+.historial-disfraz__fecha { font-size: 0.75rem; color: var(--text-muted, #666); margin-right: var(--space-2); }
+.historial-disfraz__tipo { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.04em; margin-right: var(--space-2); }
+
+.historial-alq__filtros { display: flex; gap: var(--space-3); flex-wrap: wrap; align-items: flex-end; margin-bottom: var(--space-4); }
+.historial-alq__resumen { display: flex; gap: var(--space-3); flex-wrap: wrap; margin-bottom: var(--space-4); font-size: 0.9rem; }
+.historial-alq__tabla { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
+.historial-alq__tabla th, .historial-alq__tabla td { text-align: left; padding: 8px; border-bottom: 1px solid var(--border, #ddd); vertical-align: top; }
+.historial-alq__scroll { overflow-x: auto; }

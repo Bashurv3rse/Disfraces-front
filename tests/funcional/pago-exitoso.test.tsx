@@ -2,6 +2,7 @@ import {
   render,
   screen,
 } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import {
   MemoryRouter,
   Route,
@@ -17,6 +18,7 @@ import {
 
 const apiMock = vi.hoisted(() => ({
   post: vi.fn(),
+  get: vi.fn(),
 }));
 
 const carritoMock = vi.hoisted(() => ({
@@ -175,5 +177,31 @@ describe("Pruebas funcionales - Pago exitoso", () => {
         name: "Volver al catálogo",
       })
     ).toHaveAttribute("href", "/catalogo");
+  });
+
+  it("PF-FE-81: el botón «Descargar boleta» pide el enlace a Stripe y lo abre", async () => {
+    apiMock.post.mockResolvedValue({ data: {} });
+    apiMock.get.mockResolvedValue({ data: { tipo: "pdf", url: "https://pay.stripe.com/invoice/x/pdf" } });
+    const abrir = vi.spyOn(window, "open").mockReturnValue(null);
+    const user = userEvent.setup();
+
+    renderPagina("/pago-exitoso?session_id=cs_test_123");
+    await user.click(await screen.findByRole("button", { name: "Descargar boleta" }));
+
+    expect(apiMock.get).toHaveBeenCalledWith("/pagos/boleta", { params: { sessionId: "cs_test_123" } });
+    expect(abrir).toHaveBeenCalledWith("https://pay.stripe.com/invoice/x/pdf", "_blank", "noopener,noreferrer");
+    abrir.mockRestore();
+  });
+
+  it("PF-FE-82: si no se puede obtener la boleta se avisa sin romper la página", async () => {
+    apiMock.post.mockResolvedValue({ data: {} });
+    apiMock.get.mockRejectedValue({ response: { data: { mensaje: "Stripe todavía no generó la boleta" } } });
+    const user = userEvent.setup();
+
+    renderPagina("/pago-exitoso?session_id=cs_test_123");
+    await user.click(await screen.findByRole("button", { name: "Descargar boleta" }));
+
+    expect(await screen.findByRole("alert")).toHaveTextContent("todavía no generó la boleta");
+    expect(screen.getByRole("heading", { name: /Pago confirmado/ })).toBeInTheDocument();
   });
 });

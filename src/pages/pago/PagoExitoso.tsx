@@ -11,6 +11,23 @@ export default function PagoExitoso() {
   const [estado, setEstado] = useState<Estado>("confirmando");
   const [mensaje, setMensaje] = useState<string | null>(null);
   const { vaciarCarrito } = useCarrito();
+  const [descargando, setDescargando] = useState(false);
+  const [errorBoleta, setErrorBoleta] = useState<string | null>(null);
+  const sessionId = searchParams.get("session_id");
+
+  // La boleta la genera Stripe: se pide el enlace y se abre en otra pestaña.
+  async function descargarBoleta() {
+    setDescargando(true);
+    setErrorBoleta(null);
+    try {
+      const { data } = await api.get<{ url: string }>("/pagos/boleta", { params: { sessionId } });
+      window.open(data.url, "_blank", "noopener,noreferrer");
+    } catch (err: any) {
+      setErrorBoleta(err.response?.data?.mensaje || "No se pudo obtener la boleta. Inténtalo de nuevo.");
+    } finally {
+      setDescargando(false);
+    }
+  }
 
   useEffect(() => {
     const sessionId = searchParams.get("session_id");
@@ -45,7 +62,13 @@ export default function PagoExitoso() {
         <>
           <h1>¡Pago confirmado! 🎉</h1>
           <p>Tu alquiler ya quedó registrado. Puedes ver los detalles en Mis alquileres.</p>
-          <Link to="/mis-alquileres" className="btn btn--primary">Ver mis alquileres</Link>
+          <div className="pago-exitoso__acciones">
+            <Link to="/mis-alquileres" className="btn btn--primary">Ver mis alquileres</Link>
+            <button type="button" className="btn btn--ghost" disabled={descargando} onClick={descargarBoleta}>
+              {descargando ? "Preparando boleta…" : "Descargar boleta"}
+            </button>
+          </div>
+          {errorBoleta && <div className="alert alert--danger" role="alert">{errorBoleta}</div>}
         </>
       )}
 

@@ -1,6 +1,7 @@
 import { useEffect, useState, useCallback } from "react";
 import { api } from "../../lib/api";
 import { ReportarDevolucion } from "../../components/ReportarDevolucion";
+import { resumenTallas } from "../../lib/prendas";
 import "./mis-alquileres.css";
 
 interface Prenda {
@@ -52,9 +53,26 @@ interface ComprobanteGarantia {
   }[];
 }
 
+// Las fechas del alquiler se guardan como día (medianoche UTC): se muestran tal cual, sin pasarlas
+// a la hora local (en Lima saldría un día antes).
+function fechaDia(iso: string): string {
+  return new Date(iso).toLocaleDateString("es-PE", { timeZone: "UTC" });
+}
+
 function estaVencido(fechaFin: string): boolean {
   const hoyUTC = new Date(Date.UTC(new Date().getUTCFullYear(), new Date().getUTCMonth(), new Date().getUTCDate()));
   return new Date(fechaFin) < hoyUTC;
+}
+
+function TallasAlquiladas({ prendas }: { prendas: Prenda[] }) {
+  const { ropa, calzado } = resumenTallas(prendas.map((p) => p.talla));
+  if (!ropa && !calzado) return null;
+  return (
+    <span className="alquiler-card__tallas">
+      {ropa && <span>Talla de ropa: <strong>{ropa}</strong></span>}
+      {calzado && <span>Calzado: <strong>{calzado}</strong></span>}
+    </span>
+  );
 }
 
 const ETIQUETA_PIEZA: Record<EstadoPieza, string> = {
@@ -202,18 +220,21 @@ export default function MisAlquileres() {
                 <div className="alquiler-card__fechas">
                   <div>
                     <span className="alquiler-card__label">Inicio</span>
-                    <strong>{new Date(a.fechaInicio).toLocaleDateString()}</strong>
+                    <strong>{fechaDia(a.fechaInicio)}</strong>
                   </div>
                   <div>
                     <span className="alquiler-card__label">Fin</span>
-                    <strong>{new Date(a.fechaFin).toLocaleDateString()}</strong>
+                    <strong>{fechaDia(a.fechaFin)}</strong>
                   </div>
                 </div>
 
                 <ul className="alquiler-card__piezas">
                   {a.disfraces.map((ad) => (
                     <li key={ad.disfrazFisico.id}>
-                      <span>{ad.disfrazFisico.nombre} <span className="alquiler-card__talla">{ad.disfrazFisico.tipoDisfraz}</span></span>
+                      <span>
+                        {ad.disfrazFisico.nombre} <span className="alquiler-card__talla">{ad.disfrazFisico.tipoDisfraz}</span>
+                        <TallasAlquiladas prendas={ad.disfrazFisico.prendasActuales} />
+                      </span>
                       <span className="alquiler-card__precio-unit">S/{ad.precioUnitario}/d</span>
                     </li>
                   ))}

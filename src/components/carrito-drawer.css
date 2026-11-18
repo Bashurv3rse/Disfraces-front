@@ -288,3 +288,9 @@
 .carrito-drawer__nota-reserva {
   margin: 0 0 var(--space-3);
 }
+
+.carrito-drawer__libre { display: block; color: #14532d; font-size: 0.82rem; margin-top: 4px; }
+.carrito-drawer__ocupado { background: #fdecec; color: #7f1d1d; border-radius: 6px; padding: 8px 10px; font-size: 0.82rem; margin-top: 6px; }
+.carrito-drawer__ocupado summary { cursor: pointer; margin-top: 4px; text-decoration: underline; }
+
+.carrito-drawer__tallas { display: flex; gap: var(--space-3); flex-wrap: wrap; margin: 2px 0 0; font-size: 0.82rem; color: var(--text-muted); }

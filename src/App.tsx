@@ -14,6 +14,7 @@ const MisAlquileres = lazy(() => import("./pages/alquileres/MisAlquileres"));
 const Dashboard = lazy(() => import("./pages/admin/Dashboard"));
 const Devoluciones = lazy(() => import("./pages/admin/Devoluciones"));  
 const Proveedores = lazy(() => import("./pages/admin/Proveedores"));
+const HistorialAlquileres = lazy(() => import("./pages/admin/HistorialAlquileres"));
 const InventarioFisico = lazy(() => import("./pages/admin/InventarioFisico"));
 const PagoExitoso = lazy(() => import("./pages/pago/PagoExitoso"));
 const CrearDisfraz = lazy(() => import("./pages/admin/CrearDisfraz"));
@@ -56,6 +57,10 @@ export default function App() {
                 <Route
                   path="/admin/proveedores"
                   element={<ProtectedRoute rolesPermitidos={["ADMINISTRADOR"]}><Proveedores /></ProtectedRoute>}
+                />
+                <Route
+                  path="/admin/historial"
+                  element={<ProtectedRoute rolesPermitidos={["ADMINISTRADOR"]}><HistorialAlquileres /></ProtectedRoute>}
                 />
                 <Route
                   path="/admin/inventario"

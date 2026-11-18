@@ -4,6 +4,8 @@ import { useCarrito } from "../lib/CarritoContext";
 import type { ItemCarrito } from "../lib/CarritoContext";
 import { useAhora, formatearCuenta } from "../lib/useAhora";
 import { api } from "../lib/api";
+import { resumenTallas } from "../lib/prendas";
+import { CalendarioDisponibilidad } from "./CalendarioDisponibilidad";
 import "./carrito-drawer.css";
 
 interface PromocionAplicada {
@@ -23,6 +25,22 @@ interface LineaCotizacion {
   total: number;
   promocion: PromocionAplicada | null;
 }
+
+interface DisponibilidadItem {
+  id: string;
+  disponible: boolean;
+  estado: string;
+  bloqueo: string | null;
+  ocupaciones: { desde: string; hasta: string }[];
+}
+
+const MOTIVO_NO_DISPONIBLE: Record<string, string> = {
+  ALQUILADO: "Ya está alquilado en esas fechas (o su lavado se cruza con ellas).",
+  SUSPENDIDO: "Está en lavado en esas fechas.",
+  RESERVADO: "Está reservado por otra persona.",
+  INCOMPLETO: "Le faltan piezas por ahora.",
+  EN_REPARACION: "Está en reparación.",
+};
 
 interface EstadoCodigo {
   codigo: string;
@@ -61,13 +79,53 @@ function hoyLocal(): string {
 }
 
 // El servidor evalúa el día de la semana de la fecha de inicio en UTC: se muestra igual.
+function formatoDia(fecha: string): string {
+  const [a, m, d] = fecha.split("-");
+  return `${d}/${m}/${a}`;
+}
+
+// Mismo cálculo que el servidor: diferencia de días, con un mínimo de 1.
+function diasEntre(inicio: string, fin: string): number {
+  return Math.max(1, Math.round((Date.parse(fin) - Date.parse(inicio)) / 86_400_000));
+}
+
 function nombreDia(fecha: string): string {
   return new Date(`${fecha}T00:00:00Z`).toLocaleDateString("es-PE", { weekday: "long", timeZone: "UTC" });
+}
+
+// Tallas elegidas: las del catálogo, o las de las piezas en un disfraz a medida.
+function ResumenTallas({ item }: { item: ItemCarrito }) {
+  const deLasPiezas = item.piezas ? resumenTallas(item.piezas.map((p) => p.talla)) : null;
+  const ropa = item.tallaRopa ?? deLasPiezas?.ropa;
+  const calzado = item.tallaCalzado ?? deLasPiezas?.calzado;
+  if (!ropa && !calzado) return null;
+  return (
+    <p className="carrito-drawer__tallas">
+      {ropa && <span>Talla de ropa: <strong>{ropa}</strong></span>}
+      {calzado && <span>Calzado: <strong>{calzado}</strong></span>}
+    </p>
+  );
+}
+
+function DisponibilidadEnCarrito({ info, inicio, fin }: { info: DisponibilidadItem; inicio: string; fin: string }) {
+  if (info.disponible) {
+    return <span className="carrito-drawer__libre">✓ Libre en las fechas elegidas</span>;
+  }
+  return (
+    <div className="carrito-drawer__ocupado" role="alert">
+      <strong>No disponible en esas fechas.</strong> {MOTIVO_NO_DISPONIBLE[info.estado] ?? ""} Cambia las fechas o quítalo del carrito.
+      <details>
+        <summary>Ver disponibilidad</summary>
+        <CalendarioDisponibilidad ocupaciones={info.ocupaciones} bloqueo={info.bloqueo} inicio={inicio} fin={fin} />
+      </details>
+    </div>
+  );
 }
 
 export function CarritoDrawer() {
   const { items, quitarItem, totalPorDia, abierto, cerrarCarrito, aviso, descartarAviso } = useCarrito();
 
+  // Las fechas se eligen aquí y solo aquí: el catálogo no las usa.
   const [fechaInicio, setFechaInicio] = useState("");
   const [fechaFin, setFechaFin] = useState("");
   const [evento, setEvento] = useState("");
@@ -81,6 +139,9 @@ export function CarritoDrawer() {
   const [guardando, setGuardando] = useState(false);
   const [errorPago, setErrorPago] = useState<string | null>(null);
   const [quitandoId, setQuitandoId] = useState<string | null>(null);
+
+  // Disponibilidad de cada disfraz para las fechas elegidas (los a medida ya están reservados a tu nombre).
+  const [disponibilidad, setDisponibilidad] = useState<Map<string, DisponibilidadItem>>(new Map());
 
   // Número de la última consulta de precio: una respuesta lenta de una consulta anterior
   // nunca pisa a la más reciente.
@@ -127,6 +188,26 @@ export function CarritoDrawer() {
     return () => window.clearTimeout(temporizador);
   }, [abierto, items, fechaInicio, fechaFin, rangoValido, codigoAplicado]);
 
+  const idsParaConsultar = items.filter((i) => !i.reservaId).map((i) => i.disfrazFisicoId).join(",");
+
+  useEffect(() => {
+    if (!abierto || !rangoValido || !idsParaConsultar) {
+      setDisponibilidad(new Map());
+      return;
+    }
+    let vigente = true;
+    api
+      .get<DisponibilidadItem[]>("/disfraces/disponibilidad", {
+        params: { ids: idsParaConsultar, inicio: fechaInicio, fin: fechaFin },
+      })
+      .then(({ data }) => vigente && setDisponibilidad(new Map(data.map((d) => [d.id, d]))))
+      // Si la consulta falla no se bloquea nada: el servidor vuelve a validar al pagar.
+      .catch(() => vigente && setDisponibilidad(new Map()));
+    return () => {
+      vigente = false;
+    };
+  }, [abierto, rangoValido, idsParaConsultar, fechaInicio, fechaFin]);
+
   const lineaPorId = useMemo(
     () => new Map(cotizacion?.lineas.map((l) => [l.disfrazId, l] as const) ?? []),
     [cotizacion]
@@ -135,7 +216,8 @@ export function CarritoDrawer() {
   if (!abierto) return null;
 
   const codigoInvalido = !!cotizacion?.codigo && !cotizacion.codigo.valido;
-  const puedePagar = !!cotizacion && !cotizando && !codigoInvalido && !guardando && !quitandoId;
+  const hayNoDisponibles = Array.from(disponibilidad.values()).some((d) => !d.disponible);
+  const puedePagar = !hayNoDisponibles && !!cotizacion && !cotizando && !codigoInvalido && !guardando && !quitandoId;
 
   function cambiarInicio(valor: string) {
     setFechaInicio(valor);
@@ -292,6 +374,8 @@ export function CarritoDrawer() {
                       </div>
                     )}
 
+                    <ResumenTallas item={item} />
+
                     <div className="carrito-drawer__item-linea">
                       <span className="carrito-drawer__item-precio">S/{item.precioAlquiler}/día</span>
                       {linea && (
@@ -301,6 +385,14 @@ export function CarritoDrawer() {
                         </span>
                       )}
                     </div>
+
+                    {disponibilidad.get(item.disfrazFisicoId) && (
+                      <DisponibilidadEnCarrito
+                        info={disponibilidad.get(item.disfrazFisicoId)!}
+                        inicio={fechaInicio}
+                        fin={fechaFin}
+                      />
+                    )}
 
                     {linea?.promocion && (
                       <span className="carrito-drawer__oferta">
@@ -348,6 +440,12 @@ export function CarritoDrawer() {
                 value={fechaFin}
                 onChange={(e) => setFechaFin(e.target.value)}
               />
+              {rangoValido && (
+                <span className="carrito-drawer__hint">
+                  Del {formatoDia(fechaInicio)} al {formatoDia(fechaFin)}: {diasEntre(fechaInicio, fechaFin)} día
+                  {diasEntre(fechaInicio, fechaFin) > 1 ? "s" : ""} de alquiler. Se cuentan periodos de 24 horas: el día de devolución no se cobra.
+                </span>
+              )}
             </div>
             <div className="field">
               <label htmlFor="evento">Ocasión / evento</label>

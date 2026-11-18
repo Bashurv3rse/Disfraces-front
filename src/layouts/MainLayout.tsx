@@ -34,6 +34,7 @@ export function MainLayout() {
               <Link to="/admin/proveedores">Proveedores</Link>
               <Link to="/admin/usuarios">Usuarios</Link>
               <Link to="/admin/inventario">Inventario Físico</Link>
+              <Link to="/admin/historial">Historial</Link>
             </>
           ) : (
             <>

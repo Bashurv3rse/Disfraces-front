@@ -12,3 +12,5 @@
   color: var(--text-muted);
   margin-bottom: var(--space-4);
 }
+
+.pago-exitoso__acciones { display: flex; gap: var(--space-3); flex-wrap: wrap; justify-content: center; margin-top: var(--space-3); }

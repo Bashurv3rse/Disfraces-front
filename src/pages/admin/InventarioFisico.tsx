@@ -1,6 +1,9 @@
 import { useEffect, useState, useCallback, useRef } from "react";
 import { api } from "../../lib/api";
 import { iconoPorTipo } from "../../lib/iconos";
+import { TemporalesAMedida } from "../../components/TemporalesAMedida";
+import { HistorialDisfraz } from "../../components/HistorialDisfraz";
+import "../../components/historial.css";
 import "./inventario-fisico.css";
 import { Link } from "react-router-dom";
 
@@ -462,6 +465,7 @@ export default function InventarioFisico() {
               </div>
             ))
           )}
+          <TemporalesAMedida />
         </aside>
 
         <section className="inventario__detalle">
@@ -537,6 +541,8 @@ export default function InventarioFisico() {
                   />
                 ))}
               </div>
+
+              <HistorialDisfraz key={detalle.id} disfrazId={detalle.id} />
 
               {detalle.prestamosRecibidos.length > 0 && (
                 <>

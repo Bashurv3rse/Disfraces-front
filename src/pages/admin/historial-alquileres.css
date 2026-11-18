@@ -1,0 +1,30 @@
+.hist-alq { width: 100%; max-width: 1200px; margin: 0 auto; }
+.hist-alq__subtitulo { color: var(--text-muted); margin: 0 0 var(--space-4); font-size: 0.9rem; line-height: 1.5; }
+
+.hist-alq__resumen { display: flex; gap: var(--space-3); flex-wrap: wrap; margin-bottom: var(--space-4); }
+.hist-alq__pill { display: inline-flex; align-items: center; gap: var(--space-1); background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-md); padding: var(--space-2) var(--space-4); font-size: 0.85rem; white-space: nowrap; }
+
+.hist-alq__filtros { display: flex; gap: var(--space-3); flex-wrap: wrap; align-items: flex-end; margin-bottom: var(--space-4); }
+.hist-alq__filtros .field { margin: 0; }
+.hist-alq__filtros input, .hist-alq__filtros select { min-height: 38px; }
+
+.hist-alq__contenedor { width: 100%; padding: 0; overflow-x: auto; border-radius: var(--radius-md); }
+.hist-alq__tabla { width: 100%; border-collapse: collapse; font-size: 0.9rem; min-width: 880px; }
+.hist-alq__tabla th { text-align: left; vertical-align: middle; padding: var(--space-3) var(--space-4); border-bottom: 1px solid var(--border); color: var(--text-muted); font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.03em; white-space: nowrap; }
+.hist-alq__tabla td { padding: var(--space-3) var(--space-4); border-bottom: 1px solid var(--border); vertical-align: top; }
+.hist-alq__tabla tbody tr:last-child td { border-bottom: none; }
+.hist-alq__tabla tbody tr:hover { background: rgba(0, 0, 0, 0.018); }
+.hist-alq__tabla .num { text-align: right; white-space: nowrap; }
+.hist-alq__tabla small { color: var(--text-muted); }
+
+.hist-alq__disfraz + .hist-alq__disfraz { margin-top: var(--space-2); }
+.hist-alq__tallas { display: flex; gap: var(--space-1); flex-wrap: wrap; margin-top: 2px; }
+.hist-alq__talla { font-size: 0.72rem; background: rgba(0, 0, 0, 0.06); border-radius: 999px; padding: 1px 8px; white-space: nowrap; }
+
+.hist-alq__estado { display: inline-block; font-size: 0.75rem; font-weight: 600; padding: 2px 10px; border-radius: 999px; white-space: nowrap; }
+.hist-alq__estado--pendiente { background: rgba(232, 163, 61, 0.18); color: #8a5a10; }
+.hist-alq__estado--proximo { background: rgba(59, 130, 246, 0.15); color: #1e4fa3; }
+.hist-alq__estado--en_curso { background: rgba(60, 140, 93, 0.16); color: #1f5c3a; }
+.hist-alq__estado--por_devolver { background: rgba(220, 70, 70, 0.15); color: #8f2323; }
+.hist-alq__estado--finalizado { background: rgba(0, 0, 0, 0.07); color: var(--text-muted); }
+.hist-alq__estado--cancelado { background: rgba(0, 0, 0, 0.07); color: var(--text-muted); text-decoration: line-through; }

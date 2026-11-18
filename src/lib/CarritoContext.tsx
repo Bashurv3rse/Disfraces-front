@@ -13,6 +13,9 @@ export interface ItemCarrito {
   nombre: string;
   tipoDisfraz: string;
   precioAlquiler: number;
+  // Tallas elegidas en el catálogo (se muestran en el carrito).
+  tallaRopa?: string;
+  tallaCalzado?: string;
   // Solo para disfraces a medida: su reserva sin pagar y el instante LOCAL en que vence
   // (se calcula con los segundos restantes que informa el servidor, así no depende del reloj del equipo).
   reservaId?: string;

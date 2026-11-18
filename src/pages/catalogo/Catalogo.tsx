@@ -1,32 +1,16 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useMemo } from "react";
 import { Link } from "react-router-dom";
 import { api } from "../../lib/api";
 import { useAuth } from "../../lib/AuthContext";
 import { useCarrito } from "../../lib/CarritoContext";
 import { iconoPorTemporada, colorPorSemilla } from "../../lib/iconos";
 import { OfertasBanner } from "../../components/OfertasBanner";
-import { AjusteTallaModal } from "../../components/AjusteTallaModal";
+import { agruparDisfraces, bloqueoDe, estaDisponible, estadoVisible, tallaDe } from "../../lib/agruparDisfraces";
+import type { DisfrazCat, GrupoDisfraz } from "../../lib/agruparDisfraces";
+import { DetalleDisfrazModal } from "./DetalleDisfrazModal";
 import "./catalogo.css";
 
-interface Prenda {
-  id: string;
-  nombre: string;
-  tipo: string;
-  color: string;
-  talla: string;
-  estado: string;
-}
-
-interface Disfraz {
-  id: string;
-  nombre: string;
-  tipoDisfraz: string;
-  temporadaEvento: string;
-  precioAlquiler: string;
-  imagenUrl: string | null;
-  estado: "DISPONIBLE" | "INCOMPLETO" | "ALQUILADO" | "RESERVADO" | "EN_REPARACION" | "SUSPENDIDO";
-  prendasHogar: Prenda[];
-}
+type Disfraz = DisfrazCat;
 
 const ETIQUETA_ESTADO: Record<string, string> = {
   DISPONIBLE: "Disponible",
@@ -45,10 +29,12 @@ export default function Catalogo() {
   const [busqueda, setBusqueda] = useState("");
   const [temporadasFiltro, setTemporadasFiltro] = useState<Set<string>>(new Set());
   const [tiposFiltro, setTiposFiltro] = useState<Set<string>>(new Set());
-  const [ajustando, setAjustando] = useState<Disfraz | null>(null);
+  const [detalle, setDetalle] = useState<string | null>(null); // clave del grupo abierto
+
   const [cargando, setCargando] = useState(true);
   const { usuario } = useAuth();
-  const { agregarItem, items } = useCarrito();
+  const carrito = useCarrito();
+  const { agregarItem, items } = carrito;
 
   useEffect(() => {
     api.get("/disfraces/temporadas").then(({ data }) => setTemporadasDisponibles(data));
@@ -83,7 +69,11 @@ export default function Catalogo() {
     setTiposFiltro(new Set());
   }
 
+  const cantidadFiltros = (busqueda ? 1 : 0) + temporadasFiltro.size + tiposFiltro.size;
   const hayFiltrosActivos = busqueda !== "" || temporadasFiltro.size > 0 || tiposFiltro.size > 0;
+
+  const grupos = useMemo(() => agruparDisfraces(disfraces), [disfraces]);
+  const grupoAbierto: GrupoDisfraz | undefined = grupos.find((g) => g.clave === detalle);
 
   function handleAgregar(d: Disfraz) {
     agregarItem({
@@ -91,6 +81,8 @@ export default function Catalogo() {
       nombre: d.nombre,
       tipoDisfraz: d.tipoDisfraz,
       precioAlquiler: Number(d.precioAlquiler),
+      tallaRopa: tallaDe(d, "ROPA") ?? undefined,
+      tallaCalzado: tallaDe(d, "CALZADO") ?? undefined,
     });
   }
 
@@ -98,7 +90,10 @@ export default function Catalogo() {
     <div className="catalogo">
       <aside className="catalogo__filtros" aria-label="Filtros de catálogo">
         <div className="catalogo__filtros-header">
-          <h2 style={{ fontSize: "1.1rem" }}>Filtros</h2>
+          <h2 style={{ fontSize: "1.1rem" }}>
+            Filtros
+            {cantidadFiltros > 0 && <span className="catalogo__contador">{cantidadFiltros}</span>}
+          </h2>
           {hayFiltrosActivos && (
             <button type="button" className="catalogo__limpiar" onClick={limpiarFiltros}>
               Limpiar filtros
@@ -106,8 +101,9 @@ export default function Catalogo() {
           )}
         </div>
 
-        <div className="field">
+        <div className="field catalogo__buscador">
           <label htmlFor="buscar-disfraz" className="visually-hidden">Buscar</label>
+          <span className="catalogo__lupa" aria-hidden="true">🔍</span>
           <input
             id="buscar-disfraz"
             type="text"
@@ -117,29 +113,40 @@ export default function Catalogo() {
           />
         </div>
 
-        <fieldset className="catalogo__grupo">
-          <legend>Tipo de disfraz</legend>
-          {tiposDisponibles.map((t) => (
-            <label key={t} className="catalogo__checkbox">
-              <input type="checkbox" checked={tiposFiltro.has(t)} onChange={() => toggle(tiposFiltro, t, setTiposFiltro)} />
-              {t}
-            </label>
-          ))}
-        </fieldset>
+        <details className="catalogo__seccion" open>
+          <summary>
+            Tipo de disfraz
+            {tiposFiltro.size > 0 && <span className="catalogo__contador">{tiposFiltro.size}</span>}
+          </summary>
+          <div className="catalogo__chips">
+            {tiposDisponibles.map((t) => (
+              <label key={t} className={`catalogo__chip${tiposFiltro.has(t) ? " catalogo__chip--activo" : ""}`}>
+                <input type="checkbox" checked={tiposFiltro.has(t)} onChange={() => toggle(tiposFiltro, t, setTiposFiltro)} />
+                <span>{t}</span>
+              </label>
+            ))}
+          </div>
+        </details>
 
-        <fieldset className="catalogo__grupo">
-          <legend>Temporada</legend>
-          {temporadasDisponibles.map((t) => (
-            <label key={t} className="catalogo__checkbox">
-              <input
-                type="checkbox"
-                checked={temporadasFiltro.has(t)}
-                onChange={() => toggle(temporadasFiltro, t, setTemporadasFiltro)}
-              />
-              {t.charAt(0).toUpperCase() + t.slice(1)}
-            </label>
-          ))}
-        </fieldset>
+        <details className="catalogo__seccion" open>
+          <summary>
+            Temporada
+            {temporadasFiltro.size > 0 && <span className="catalogo__contador">{temporadasFiltro.size}</span>}
+          </summary>
+          <div className="catalogo__chips">
+            {temporadasDisponibles.map((t) => (
+              <label key={t} className={`catalogo__chip${temporadasFiltro.has(t) ? " catalogo__chip--activo" : ""}`}>
+                <input
+                  type="checkbox"
+                  checked={temporadasFiltro.has(t)}
+                  onChange={() => toggle(temporadasFiltro, t, setTemporadasFiltro)}
+                />
+                <span className="catalogo__chip-icono" aria-hidden="true">{iconoPorTemporada(t)}</span>
+                <span>{t.charAt(0).toUpperCase() + t.slice(1)}</span>
+              </label>
+            ))}
+          </div>
+        </details>
       </aside>
 
       <section aria-label="Resultados del catálogo" className="catalogo__resultados">
@@ -153,16 +160,16 @@ export default function Catalogo() {
           <p>No se encontraron disfraces con estos filtros.</p>
         ) : (
           <ul className="catalogo__grid">
-            {disfraces.map((d) => {
-              const enCarrito = items.some((i) => i.disfrazFisicoId === d.id);
-              const disponible = d.estado === "DISPONIBLE";
+            {grupos.map((g) => {
+              const d = g.representante;
+              const hayDisponible = g.variantes.some(estaDisponible);
               return (
-                <li key={d.id} className="card catalogo__item">
+                <li key={g.clave} className="card catalogo__item">
                   {d.imagenUrl && !imagenesFallidas.has(d.imagenUrl) ? (
                     <img
                       src={d.imagenUrl}
-                      onError={() => setImagenesFallidas(prev => new Set(prev).add(d.imagenUrl!))}
-                      alt={d.nombre}
+                      onError={() => setImagenesFallidas((prev) => new Set(prev).add(d.imagenUrl!))}
+                      alt={g.nombre}
                       className="catalogo__foto"
                       loading="lazy"
                       decoding="async"
@@ -174,54 +181,31 @@ export default function Catalogo() {
                       <span className="catalogo__icono">{iconoPorTemporada(d.temporadaEvento)}</span>
                     </div>
                   )}
-                  <h3 style={{ fontSize: "1rem" }}>{d.nombre}</h3>
+                  <h3 style={{ fontSize: "1rem" }}>{g.nombre}</h3>
                   <p className="catalogo__meta">{d.tipoDisfraz} · Temporada: {d.temporadaEvento}</p>
                   <p className="catalogo__precio">S/ {d.precioAlquiler} / día</p>
-                  <span className={`catalogo__estado ${disponible ? "catalogo__estado--ok" : "catalogo__estado--incompleto"}`}>
-                    {ETIQUETA_ESTADO[d.estado]}
+                  <span className={`catalogo__estado ${hayDisponible ? "catalogo__estado--ok" : "catalogo__estado--incompleto"}`}>
+                    {hayDisponible ? "Disponible" : g.variantes.some((v) => !bloqueoDe(v)) ? "Ocupado hoy" : ETIQUETA_ESTADO[estadoVisible(d)]}
                   </span>
-
-                  <ul className="catalogo__prendas">
-                    {d.prendasHogar.map((p) => (
-                      <li key={p.id}>{p.nombre} · {p.color} · {p.talla}</li>
-                    ))}
-                  </ul>
-
-                  {usuario ? (
-                    <>
-                      <button
-                        type="button"
-                        className="btn btn--primary"
-                        disabled={!disponible || enCarrito}
-                        onClick={() => handleAgregar(d)}
-                      >
-                        {enCarrito ? "En el carrito" : "Agregar al carrito"}
-                      </button>
-                      <button
-                        type="button"
-                        className="btn btn--ghost"
-                        disabled={!disponible || enCarrito}
-                        onClick={() => setAjustando(d)}
-                      >
-                        Ajustar a mi talla
-                      </button>
-                    </>
-                  ) : (
-                    <Link to="/login" className="btn btn--ghost">Inicia sesión para alquilar</Link>
-                  )}
+                  <button type="button" className="btn btn--primary" onClick={() => setDetalle(g.clave)}>
+                    Ver detalle
+                  </button>
                 </li>
               );
             })}
           </ul>
         )}
       </section>
-      {ajustando && (
-        <AjusteTallaModal
-          disfrazId={ajustando.id}
-          nombre={ajustando.nombre}
-          tipoDisfraz={ajustando.tipoDisfraz}
-          onCerrar={() => setAjustando(null)}
-          onReservado={cargar}
+      {grupoAbierto && (
+        <DetalleDisfrazModal
+          grupo={grupoAbierto}
+          sesionIniciada={!!usuario}
+          idsEnCarrito={items.map((i) => i.disfrazFisicoId)}
+          onAgregar={(d) => {
+            handleAgregar(d);
+            setDetalle(null);
+          }}
+          onCerrar={() => setDetalle(null)}
         />
       )}
     </div>

@@ -53,8 +53,12 @@ test("TC-E2E-CAR-01: quitar un artículo conserva el otro y permite vaciar antes
   await expect(carrito.locator(".carrito-drawer__items > li")).toHaveCount(1);
   await expect(carrito.locator(".carrito-drawer__resumen")).toContainText("S/ 40.00");
   await page.getByRole("button", { name: "Cerrar carrito", exact: true }).click();
-  await expect(ui.tarjeta(primero.nombre).getByRole("button", { name: "Agregar al carrito", exact: true })).toBeEnabled();
-  await expect(ui.tarjeta(segundo.nombre).getByRole("button", { name: "En el carrito", exact: true })).toBeDisabled();
+  const detallePrimero = await ui.abrirDetalle(primero.nombre);
+  await expect(detallePrimero.getByRole("button", { name: "Agregar al carrito", exact: true })).toBeEnabled();
+  await page.keyboard.press("Escape");
+  const detalleSegundo = await ui.abrirDetalle(segundo.nombre);
+  await expect(detalleSegundo.getByRole("button", { name: "En el carrito", exact: true })).toBeDisabled();
+  await page.keyboard.press("Escape");
   await page.getByRole("button", { name: /Abrir carrito, 1 artículos/ }).click();
   await carrito.getByRole("button", { name: `Quitar ${segundo.nombre} del carrito`, exact: true }).click();
   await expect(carrito.getByText("Tu carrito está vacío.", { exact: true })).toBeVisible();
@@ -83,7 +87,7 @@ test("TC-FE-IMG-01: imagen válida y reemplazo temático ante imagen ausente o r
     await expect(tarjeta.locator(".catalogo__icono")).toBeVisible();
     await expect(tarjeta.getByRole("img")).toHaveCount(0);
     await expect(tarjeta.getByRole("heading", { name: item.nombre, exact: true })).toBeVisible();
-    await expect(tarjeta.getByRole("button", { name: "Agregar al carrito", exact: true })).toBeEnabled();
+    await expect(tarjeta.getByRole("button", { name: "Ver detalle", exact: true })).toBeEnabled();
   }
   await ui.agregar(rota.nombre);
   await expect(page.getByRole("dialog", { name: "Tu carrito" }).getByText(rota.nombre, { exact: true })).toBeVisible();
@@ -124,3 +128,4 @@ test("TC-FE-NFI-01: diferir imágenes fuera de pantalla y cargar Perfil al naveg
   await expect(page.getByLabel(/correo/i)).toHaveValue(catalogo.email);
   await expect.poll(() => modulosPerfil.length).toBeGreaterThan(0);
 });
+

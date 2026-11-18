@@ -480,3 +480,10 @@
   background: rgba(232, 163, 61, 0.2);
   color: #A5730F;
 }
+
+.inventario__temporales { margin-top: var(--space-5); padding-top: var(--space-3); border-top: 1px solid var(--border); }
+.inventario__temporales-nota { font-size: 0.75rem; color: var(--text-muted); margin: 0 0 var(--space-2); }
+.inventario__temporal { font-size: 0.82rem; margin-bottom: var(--space-2); }
+.inventario__temporal summary { display: flex; justify-content: space-between; gap: var(--space-2); cursor: pointer; align-items: center; }
+.inventario__temporal ul { margin: 4px 0 0; padding-left: 1.1rem; }
+.inventario__temporal p { margin: 4px 0 0; color: var(--text-muted); }

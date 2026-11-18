@@ -36,3 +36,12 @@ export function tallasPermitidas(tipo: string): string[] {
       return TALLAS_ROPA;
   }
 }
+
+// Resume las tallas de un conjunto de piezas: el calzado es numérico, la ropa son letras y las
+// piezas de talla única no cuentan. Si hay varias tallas distintas se muestran todas (a medida).
+export function resumenTallas(tallas: string[]): { ropa: string; calzado: string } {
+  const unicas = (lista: string[]) => Array.from(new Set(lista));
+  const calzado = unicas(tallas.filter((t) => /^\d+$/.test(t)));
+  const ropa = unicas(tallas.filter((t) => !/^\d+$/.test(t) && t.toLowerCase() !== "única"));
+  return { ropa: ropa.join(" / "), calzado: calzado.join(" / ") };
+}

@@ -26,8 +26,18 @@ export class CatalogoPage {
     await expect(this.page).toHaveURL(/\/catalogo$/);
   }
 
+  // El catálogo muestra una tarjeta por disfraz y el detalle se abre en una ventana emergente.
+  async abrirDetalle(nombre: string) {
+    await this.tarjeta(nombre).getByRole("button", { name: "Ver detalle", exact: true }).click();
+    const detalle = this.page.getByRole("dialog", { name: nombre, exact: true });
+    await expect(detalle).toBeVisible();
+    return detalle;
+  }
+
   async agregar(nombre: string) {
-    await this.tarjeta(nombre).getByRole("button", { name: "Agregar al carrito", exact: true }).click();
+    const detalle = await this.abrirDetalle(nombre);
+    await detalle.getByRole("button", { name: "Agregar al carrito", exact: true }).click();
     await expect(this.page.getByRole("dialog", { name: "Tu carrito" })).toBeVisible();
   }
 }
+
